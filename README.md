@@ -43,6 +43,7 @@ The algorithms can be run using the command
 Example Datasets
 ----
 [Corel] (http://archive.ics.uci.edu/ml/datasets/Corel+Image+Features)
+
 [Mirflickr] (http://medialab.liacs.nl/mirflickr/mirflickr1m/)
 
 Note that you need to convert the format to the one specified above before feeding them to the program.
