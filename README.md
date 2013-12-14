@@ -1,6 +1,6 @@
-MELODY-Join
+Melody-Join
 ===========
-The Hadoop based implementation of MELODY-Join algorithm presented in the paper [Jin Huang, Rui Zhang, Rajkumar Buyya, and Jian Chen, "MELODY-Join: Efficient Earth Mover's Distance Similarity Join Using MapReduce", ICDE2014.] (http://people.eng.unimelb.edu.au/huangj1/resources/icde2014_melody.pdf )
+The Hadoop based implementation of Melody-Join algorithm presented in the paper [Jin Huang, Rui Zhang, Rajkumar Buyya, and Jian Chen, "Melody-Join: Efficient Earth Mover's Distance Similarity Join Using MapReduce", ICDE2014.] (http://people.eng.unimelb.edu.au/huangj1/resources/icde2014_melody.pdf )
 
 What It Does
 ----
@@ -23,7 +23,7 @@ All files should be accessible via HDFS paths.
 
 How To Run
 ----
-The implementation uses Apache Maven for dependency management. You can run `mvn clean install assembly:single` to generate the jar file. Additionally, make sure your environment meets the following requirement
+The implementation uses Apache Maven for dependency management. You can run `mvn clean package` to generate the jar file. Additionally, make sure your environment meets the following requirement
 - Apache Hadoop 2.0+
 - Apache Hama 0.7.0-SNAPSHOT
 
