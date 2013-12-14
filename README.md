@@ -24,8 +24,8 @@ All files should be accessible via HDFS paths.
 How To Run
 ----
 The implementation uses Apache Maven for dependency management. You can run `mvn clean install assembly:single` to generate the jar file. Additionally, make sure your environment meets the following requirement
-- Apache Hadoop 1.0.4+
-- Apache Hama 0.6.3+
+- Apache Hadoop 2.0+
+- Apache Hama 0.7.0-SNAPSHOT
 
 The following dependencies should be in the `/lib` directory of the Hadoop and Hama:
 - commons-math3-3.1.1
