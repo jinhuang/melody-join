@@ -33,10 +33,11 @@ public class QuantileNormalEmd extends Configured implements Tool {
 	private static final int vectorNumIt = 5;
 	private static final int thresholdIt = 6;
 	private static final int queryIt = 7;
-	private static final int inputPathIt = 8;
-	private static final int binsPathIt = 9;
-	private static final int vectorPathIt = 10;
-	private static final int outputPathIt = 11;
+	private static final int ratioIt = 8;
+	private static final int inputPathIt = 9;
+	private static final int binsPathIt = 10;
+	private static final int vectorPathIt = 11;
+	private static final int outputPathIt = 12;
 	private static final int argsLength = outputPathIt - gridIt + 1;
 	
 	private static final String cachePath = File.separator + "cache";
@@ -77,6 +78,7 @@ public class QuantileNormalEmd extends Configured implements Tool {
 		conf.set("threshold", args[thresholdIt]);
 		conf.set("paraK", args[thresholdIt]);
 		conf.set("query", args[queryIt]);
+		conf.set("ratio", args[ratioIt]);
 		conf.set("inputPath", args[inputPathIt]);
 		conf.set("binsPath", args[binsPathIt]);
 		conf.set("vectorPath", args[vectorPathIt]);
@@ -105,6 +107,7 @@ public class QuantileNormalEmd extends Configured implements Tool {
 		println("Vector: " + conf.getInt("vector", 0));
 		println("Threshold: " + conf.get("threshold"));
 		println("Query: " + conf.get("query"));
+		println("Sample ratio: " + conf.get("ratio"));
 		println("Input path: " + conf.get("inputPath"));
 		println("Bins path: " + conf.get("binsPath"));
 		println("Vector path: " + conf.get("vectorPath"));

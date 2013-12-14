@@ -34,6 +34,7 @@ public class Join {
 			String bin = ConfUtils.getString(ConfUtils.BIN);
 			String vector = ConfUtils.getString(ConfUtils.VECTOR);
 			String output = ConfUtils.getString(ConfUtils.OUTPUT);
+			int ratio = (int) (1 / ConfUtils.getDouble(ConfUtils.RATIO));
 			
 			FileUtil.setMathDependency(ConfUtils.getString(ConfUtils.DEPENDENCY));
 			
@@ -41,7 +42,7 @@ public class Join {
 			if (method.equalsIgnoreCase("melody")) {
 				method = "qne";
 				String query = ConfUtils.getString(ConfUtils.QUERY);
-				passArgs = new String[13];
+				passArgs = new String[14];
 				if (query.equalsIgnoreCase("distance")) {
 					query = "range";
 					double threshold = ConfUtils.getDouble(ConfUtils.THRESHOLD);
@@ -60,10 +61,11 @@ public class Join {
 				passArgs[5] = String.valueOf(numBin);
 				passArgs[6] = String.valueOf(numVector);
 				passArgs[8] = query;
-				passArgs[9] = input;
-				passArgs[10] = bin;
-				passArgs[11] = vector;
-				passArgs[12] = output;
+				passArgs[9] = String.valueOf(ratio);
+				passArgs[10] = input;
+				passArgs[11] = bin;
+				passArgs[12] = vector;
+				passArgs[13] = output;
 				EmdJoin.main(passArgs);
 			}
 			else if (method.equalsIgnoreCase("mrsim")) {
@@ -82,8 +84,23 @@ public class Join {
 				passArgs[10] = output;
 				EmdJoin.main(passArgs);
 			}
-			else if (method.equalsIgnoreCase("bspmelody") 
-					|| method.equalsIgnoreCase("bspb")) {
+			else if (method.equalsIgnoreCase("bspmelody")) {
+				passArgs = new String[12];
+				passArgs[0] = String.valueOf(worker);
+				passArgs[1] = String.valueOf(ConfUtils.getInteger(ConfUtils.PARAK));
+				passArgs[2] = String.valueOf(dimension);
+				passArgs[3] = String.valueOf(numBin);
+				passArgs[4] = String.valueOf(numVector);
+				passArgs[5] = String.valueOf(grid);
+				passArgs[6] = input;
+				passArgs[7] = bin;
+				passArgs[8] = vector;
+				passArgs[9] = output;
+				passArgs[10] = String.valueOf(ConfUtils.getBoolean(ConfUtils.CACHED));
+				passArgs[11] = String.valueOf(ConfUtils.getInteger(ConfUtils.BATCH));
+				Normal.main(passArgs);
+			}
+			else if (method.equalsIgnoreCase("bspb")) {
 				passArgs = new String[11];
 				passArgs[0] = String.valueOf(worker);
 				passArgs[1] = String.valueOf(ConfUtils.getInteger(ConfUtils.PARAK));
@@ -96,12 +113,7 @@ public class Join {
 				passArgs[8] = output;
 				passArgs[9] = String.valueOf(ConfUtils.getBoolean(ConfUtils.CACHED));
 				passArgs[10] = String.valueOf(ConfUtils.getInteger(ConfUtils.BATCH));
-				if (method.equalsIgnoreCase("bspmelody")) {
-					Normal.main(passArgs);
-				}
-				else {
-					Baseline.main(passArgs);
-				}
+				Baseline.main(passArgs);				
 			}
 			else {
 				System.out.println("method " + method + " not suppoted");

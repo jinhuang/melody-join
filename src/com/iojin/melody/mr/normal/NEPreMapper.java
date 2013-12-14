@@ -49,7 +49,7 @@ public class NEPreMapper extends Mapper<Object, Text, LongWritable, Text> {
 	
 	/* for sampling k upper bound */
 	private List<Double[]> samples;
-	private static int sampleRatio = 25;
+	private static int sampleRatio = 1000;
 	private static Random random = new Random();
 	
 	@Override
@@ -77,6 +77,7 @@ public class NEPreMapper extends Mapper<Object, Text, LongWritable, Text> {
 		}
 		
 		samples = new ArrayList<Double[]>();
+		sampleRatio = conf.getInt("ratio", 1000);
 	}
 	
 	@Override

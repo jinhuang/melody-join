@@ -116,7 +116,7 @@ public class Grid {
 				for (int k = 0; k < duals.length; k++) {
 					double dualLower = duals[k].getCKey(hist) + keys[k];
 					maxLower = dualLower > maxLower ? dualLower : maxLower;
-					System.out.println("dual " + k + " : " + dualLower);
+//					System.out.println("dual " + k + " : " + dualLower);
 				}
 
 				/*
@@ -161,7 +161,7 @@ public class Grid {
 					minUpper = upper > minUpper ? minUpper : upper;
 				}
 				
-				System.out.println("maxLower: " + maxLower + " ; minUpper: " + minUpper);
+//				System.out.println("maxLower: " + maxLower + " ; minUpper: " + minUpper);
 
 				TimerUtil.knnBoundTimer += System.nanoTime() - tmpTimer;
 				tmpTimer = System.nanoTime();
@@ -175,9 +175,9 @@ public class Grid {
 							counterCombination, minUpper, maxLower));
 					
 				}
-				else {
-					System.out.println(combinationId + " eliminated since maxLower: " + maxLower + " while kUpper: " + kUpper);
-				}
+//				else {
+//					System.out.println(combinationId + " eliminated since maxLower: " + maxLower + " while kUpper: " + kUpper);
+//				}
 				
 				TimerUtil.knnPruneTimer += System.nanoTime() - tmpTimer;
 			}
@@ -195,12 +195,12 @@ public class Grid {
 			}
 			if (each.getLower() < kUpper) {
 				guest.add(each.getCombination());
-				System.out.println("Guest Combination " + each.getCombination() + " added, since its lower:" + each.getLower() + " kUppper: " + kUpper);
+//				System.out.println("Guest Combination " + each.getCombination() + " added, since its lower:" + each.getLower() + " kUppper: " + kUpper);
 			}
-			else {
-				System.out.println(each.getCombination() + " eliminated since its Lower: " + each.getLower() + " while kUpper: " + kUpper);
-				
-			}
+//			else {
+//				System.out.println(each.getCombination() + " eliminated since its Lower: " + each.getLower() + " while kUpper: " + kUpper);
+//				
+//			}
 		}
 		TimerUtil.knnEliminationTimer += System.nanoTime() - tmpTimer;
 		return guest;
@@ -302,7 +302,7 @@ public class Grid {
 //				TimerUtil.rankBoundTimer += System.nanoTime() - tmpTimer;
 //				tmpTimer = System.nanoTime();
 				
-				logger.info("maxLower: " + maxLower + " -- kUpper: " + kUpper);
+//				logger.info("maxLower: " + maxLower + " -- kUpper: " + kUpper);
 				if (maxLower < kUpper) {
 //					if (counterCombination > paraK && minUpper < kUpper) {
 //						kUpper = minUpper;
@@ -522,21 +522,6 @@ public class Grid {
 					if (emdBr > threshold) {
 						TimerUtil.eliminatedCounter += counterCombination;
 						guestCombination = false;
-						if (recordId == 16775
-								&& combinationId.equals("3 0 3 3 1 3 3")) {
-							logger.debug("Record " + recordId + " in space "
-									+ j + " (" + direction + "), combination "
-									+ combinationId + " is eliminated by "
-									+ emdBr);
-							logger.debug("record : "
-									+ FormatUtil.toString(recordInSpace));
-							logger.debug("record error: "
-									+ FormatUtil.toString(errorInSpace));
-							logger.debug("grid : "
-									+ FormatUtil.toString(gridBound));
-							logger.debug("grid error: "
-									+ FormatUtil.toString(gridError));
-						}
 						break;
 					}
 				}
@@ -854,9 +839,9 @@ public class Grid {
 
 		int locationSW = gridId % sideNum;
 		int locationSE = gridId / sideNum;
-		if (locationSW < 0 || locationSE < 0) {
-			logger.debug("location SW: " + locationSW + "; SE: " + locationSE);
-		}
+//		if (locationSW < 0 || locationSE < 0) {
+//			logger.debug("location SW: " + locationSW + "; SE: " + locationSE);
+//		}
 		double[] lower = getIntersectionByCount(locationSW, locationSE);
 		locationSW++;
 		locationSE++;

@@ -189,7 +189,7 @@ public class FileUtil {
 					arrayResult.add(FormatUtil.toObjectDoubleArray(line));
 					line = br.readLine();
 				}
-				
+				br.close();
 			}			
 			//System.out.println(line);
 		} catch (IOException e) {

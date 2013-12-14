@@ -19,9 +19,12 @@ import org.apache.hama.bsp.BSPPeer;
 import org.apache.hama.bsp.KeyValueTextInputFormat;
 import org.apache.hama.bsp.TextOutputFormat;
 import org.apache.hama.bsp.sync.SyncException;
-import org.apache.hama.ml.math.DenseDoubleVector;
-import org.apache.hama.ml.math.DoubleVector;
-import org.apache.hama.ml.writable.VectorWritable;
+import org.apache.hama.commons.io.VectorWritable;
+import org.apache.hama.commons.math.DenseDoubleVector;
+import org.apache.hama.commons.math.DoubleVector;
+//import org.apache.hama.ml.math.DenseDoubleVector;
+//import org.apache.hama.ml.math.DoubleVector;
+//import org.apache.hama.ml.writable.VectorWritable;
 
 import com.iojin.melody.utils.BSPUtil;
 import com.iojin.melody.utils.DistanceUtil;
@@ -342,7 +345,11 @@ public class BaselineBSP extends
 				threshold = eachThreshold < threshold ? eachThreshold : threshold;				
 			}
 			else if (each.getVector().get(0) == DATA_MSG){
-				hist = each.getVector().slice(1, each.getVector().getDimension());
+//				hist = each.getVector().slice(1, each.getVector().getDimension()); 
+				// commented out for HAMA-0.7.0-SNAPSHOT, where the DoubleVector.slice(start, end)
+				// both start and end are inclusive, different from HAMA-0.6.3, where start is 
+				// inclusive and end is exclusive
+				hist = each.getVector().slice(1, each.getVector().getDimension() - 1);
 				guestHist.add(hist.deepCopy());
 			}	
 			else if (each.getVector().get(0) == FINAL_MSG && master) {

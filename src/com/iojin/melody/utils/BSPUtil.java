@@ -1,8 +1,8 @@
 package com.iojin.melody.utils;
 
 import org.apache.hadoop.io.Text;
-import org.apache.hama.ml.math.DenseDoubleVector;
-import org.apache.hama.ml.math.DoubleVector;
+import org.apache.hama.commons.math.DenseDoubleVector;
+import org.apache.hama.commons.math.DoubleVector;
 
 public class BSPUtil {
 	

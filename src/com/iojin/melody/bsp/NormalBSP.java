@@ -27,9 +27,9 @@ import org.apache.hama.bsp.BSPPeer;
 import org.apache.hama.bsp.KeyValueTextInputFormat;
 import org.apache.hama.bsp.TextOutputFormat;
 import org.apache.hama.bsp.sync.SyncException;
-import org.apache.hama.ml.math.DenseDoubleVector;
-import org.apache.hama.ml.math.DoubleVector;
-import org.apache.hama.ml.writable.VectorWritable;
+import org.apache.hama.commons.math.DenseDoubleVector;
+import org.apache.hama.commons.math.DoubleVector;
+import org.apache.hama.commons.io.VectorWritable;
 
 import com.iojin.melody.utils.BSPUtil;
 import com.iojin.melody.utils.Direction;
@@ -307,7 +307,7 @@ public class NormalBSP extends
 			if (cellId.equals(id)) continue;
 			String[] eachCellIds = cellId.split(",");
 			double maxEmdLB = -Double.MAX_VALUE;
-//			// emdbr
+			// emdbr
 			for (int v = 0; v < numVectors; v++) {
 				double[] eachProjection = FormatUtil.getNthSubArray(projectedBins, numBins, v);
 				eachProjection = FormatUtil.substractAvg(eachProjection);
@@ -326,6 +326,10 @@ public class NormalBSP extends
 				double[] bound = grids[v].getGridBound(eachId);
 				Direction direction = grids[v].locateRecordToGrid(record, bound);
 				double emdBr = grids[v].getEmdBr(record, error, bound, FormatUtil.toDoubleArray(cellError.get(cellId)[v]), direction,numInterval);
+				if (emdBr > threshold) {
+					filterTimer += System.nanoTime() - start;
+					return true;
+				}
 				maxEmdLB = maxEmdLB > emdBr ? maxEmdLB : emdBr;
 			}
 //			// rubner
@@ -337,6 +341,7 @@ public class NormalBSP extends
 //				
 //			}
 			if (maxEmdLB < threshold) {
+				filterTimer += System.nanoTime() - start;
 				return false;
 			}
 		}
@@ -489,9 +494,13 @@ public class NormalBSP extends
 			if (each.getVector().get(0) == THRESHOLD_MSG) {
 				double eachThreshold = each.getVector().get(1);
 				threshold = eachThreshold < threshold ? eachThreshold : threshold;	
-			}
+			} 
 			else if (each.getVector().get(0) == DATA_MSG){
-				hist = each.getVector().slice(1, each.getVector().getDimension());
+//				hist = each.getVector().slice(1, each.getVector().getDimension()); 
+				// commented out for HAMA-0.7.0-SNAPSHOT, where the DoubleVector.slice(start, end)
+				// both start and end are inclusive, different from HAMA-0.6.3, where start is 
+				// inclusive and end is exclusive
+				hist = each.getVector().slice(1, each.getVector().getDimension() - 1);
 				guestHist.add(hist.deepCopy());
 			}	
 			else if (each.getVector().get(0) == FINAL_MSG) {

@@ -40,19 +40,19 @@ public class Normal {
 	private static Random random = new Random();
 	
 	public static void main(String[] args) throws IOException, URISyntaxException, ClassNotFoundException, InterruptedException {
-		if (args.length != 11) {
-			System.out.println("USAGE: <NUM_TASK> <PARAK> <DIMENSION> <NUM_BIN> <NUM_VECTOR> <INPUT_PATH> <BIN_PATH> <VECTOR_PATH> <OUTPUT_PATH> <CACHED> <BATCH>");
+		if (args.length != 12) {
+			System.out.println("USAGE: <NUM_TASK> <PARAK> <DIMENSION> <NUM_BIN> <NUM_VECTOR> <NUM_GRID> <INPUT_PATH> <BIN_PATH> <VECTOR_PATH> <OUTPUT_PATH> <CACHED> <BATCH>");
 			return;
 		}
 		HamaConfiguration conf = new HamaConfiguration();
 		conf.set("mapred.child.java.opts", "-Xmx512M");
-		Path out = new Path(args[8]);
+		Path out = new Path(args[9]);
 		FileSystem fs = FileSystem.get(conf);
 		
-		FileUtil.deleteIfExistOnHDFS(conf, args[8]);
+		FileUtil.deleteIfExistOnHDFS(conf, args[9]);
 		FileUtil.addDependency(conf);
-		DistributedCache.addCacheFile(new URI(args[6]),conf);
 		DistributedCache.addCacheFile(new URI(args[7]),conf);
+		DistributedCache.addCacheFile(new URI(args[8]),conf);
 		
 		conf.setInt(NormalBSP.NUMTASK, Integer.valueOf(args[0]));
 		conf.setInt(NormalBSP.PARAK, Integer.valueOf(args[1]));
@@ -61,24 +61,26 @@ public class Normal {
 		conf.setInt(NormalBSP.NUMVEC, Integer.valueOf(args[4]));
 		conf.setInt(NormalBSP.NUMINTERVAL, numInterval);
 		conf.setInt(NormalBSP.NUMDUAL, numDuals);
-		conf.setInt(NormalBSP.NUMGRID, numGrid);
+		
 		conf.setInt(NormalBSP.LENGTHERROR, lengthError);
-		conf.set(NormalBSP.PATHIN, args[5]);
-		conf.set(NormalBSP.PATHPREIN, args[5] + File.separator + "prepared");
+		conf.set(NormalBSP.PATHIN, args[6]);
+		conf.set(NormalBSP.PATHPREIN, args[6] + File.separator + "prepared");
 		Path in = new Path(conf.get(NormalBSP.PATHPREIN));
 		if (fs.isFile(in)) {
 			System.out.println("Input should be a directory");
 			return;
 		}
 		
+		numGrid = Integer.valueOf(args[5]);
+		conf.setInt(NormalBSP.NUMGRID, numGrid);
 
-		conf.set(NormalBSP.PATHCELL, args[5] + File.separator + "cell");
-		conf.set(NormalBSP.PATHGRID, args[5] + File.separator + "grid");
-		conf.set(NormalBSP.PATHBIN, args[6]);
-		conf.set(NormalBSP.PATHVEC, args[7]);
-		conf.set(NormalBSP.PATHOUT, args[8]);
-		conf.setBoolean(NormalBSP.CACHED, Boolean.valueOf(args[9]));
-		conf.setInt(NormalBSP.MSG_BATCH, Integer.valueOf(args[10]));
+		conf.set(NormalBSP.PATHCELL, args[6] + File.separator + "cell");
+		conf.set(NormalBSP.PATHGRID, args[6] + File.separator + "grid");
+		conf.set(NormalBSP.PATHBIN, args[7]);
+		conf.set(NormalBSP.PATHVEC, args[8]);
+		conf.set(NormalBSP.PATHOUT, args[9]);
+		conf.setBoolean(NormalBSP.CACHED, Boolean.valueOf(args[10]));
+		conf.setInt(NormalBSP.MSG_BATCH, Integer.valueOf(args[11]));
 		conf.set("bsp.local.tasks.maximum", "" + Runtime.getRuntime().availableProcessors());
 		
 		FileUtil.deleteIfExistOnHDFS(conf, conf.get(NormalBSP.PATHPREIN));

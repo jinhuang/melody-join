@@ -59,12 +59,12 @@
   	<dependency>
   		<groupId>org.apache.hama</groupId>
   		<artifactId>hama-core</artifactId>
-  		<version>0.6.3</version>
+  		<version>0.7.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>org.apache.hama</groupId>
   		<artifactId>hama-ml</artifactId>
-  		<version>0.6.3</version>
+  		<version>0.7.0-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>commons-configuration</groupId>
@@ -76,6 +76,7 @@
 		<artifactId>commons-collections</artifactId>
 		<version>3.2.1</version>
 	</dependency>
-            
+
+                    
   </dependencies>
 </project>

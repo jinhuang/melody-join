@@ -26,6 +26,7 @@ public class ConfUtils {
 	public static final String INTERVAL = "melody.normal.error.interval";
 	public static final String TASK = "parallel.task.number";
 	public static final String PIVOT = "mrsim.pivot.number";
+	public static final String RATIO = "melody.sample.ratio";
 	
 	private static Configuration instance;
 	
