@@ -16,7 +16,7 @@ Data records are represented by histograms that have multiple bins. Each bin has
 - Histograms: each line represents one record, `<id> <weight of bin 0> <weight of bin 1> ...`
 - Bin Locations: all locations in one line, `<bin 0 dimension 0> <bin 0 dimension 1> ... <bin n dimension 0> <bin n dimension 1> ...` 
 
-As MELODY-Join exploits the projection and normal lower bounds of EMD, it requires the projection vectors in the following format:
+As Melody-Join exploits the projection and normal lower bounds of EMD, it requires the projection vectors in the following format:
 - Projection vector: all vectors in one line, `<vector 0 dimension 0> <vector 0 dimension 1> ... <vector n dimension 0> <vector n dimension 1> ...`
 
 All files should be accessible via HDFS paths.
