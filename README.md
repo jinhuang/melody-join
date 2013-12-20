@@ -10,6 +10,8 @@ Two types of joins are supported:
 - **Distance threshold**: the distance between the records from the retrieved pairs is below a given value, MapReduce only
 - **Top-_k_**: the retrieved pairs have the k smallest distances among all pairs from a cartesian product, MapReduce and BSP
 
+The [MRSimJoin] (http://www.public.asu.edu/~ynsilva/SimCloud/publications.html) implementation released by the original authors is modified to generically process arbitrary dimensional datasets. That code is under the package `mrsim`.
+
 Additionally, it provides a data generator which extracts content-based features from image files, which can be fed to the join algorithm to process. The feature extraction is provided by [Lire] (http://www.semanticmetadata.net/lire/). 
 
 Input Datset Format
