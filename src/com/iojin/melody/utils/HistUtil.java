@@ -2,7 +2,6 @@ package com.iojin.melody.utils;
 
 //import java.text.DecimalFormat;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,7 +17,6 @@ import org.apache.commons.math.MathException;
 import org.apache.commons.math.distribution.NormalDistributionImpl;
 import org.apache.commons.math3.geometry.euclidean.threed.Plane;
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D;
-import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 /**
@@ -28,7 +26,7 @@ import org.apache.log4j.Logger;
  */
 public class HistUtil {
 	
-	private static final double epsilon = 0.00000000001;
+	private static final double epsilon = 0.00000001;
 	private static final Random random = new Random();
 	private static Logger logger = Logger.getLogger(HistUtil.class);
 	private static NormalDistributionImpl stdNormal = new NormalDistributionImpl(0, 1);
@@ -38,7 +36,7 @@ public class HistUtil {
 	
 	private static HashMap<Integer, TreeSet<BinDistance>> groundDistance = null;
 	
-	private static Percentile statistics = new Percentile();
+//	private static Percentile statistics = new Percentile();
 	
 	public static double getCDFDifferenceBetweenNormals(double[] normalA, double[] normalB, double start, double end) {
 		if (Math.abs(normalA[1]) == 0) {
@@ -523,8 +521,10 @@ public class HistUtil {
 		for (int i = 0; i < hist.length; i++) {
 			sum += hist[i];
 		}
-		for (int i = 0; i < hist.length; i++) {
-			hist[i] = hist[i] / sum;
+		if (sum > 0.0d) {
+			for (int i = 0; i < hist.length; i++) {
+				hist[i] = hist[i] / sum;
+			}
 		}
 		return hist;
 	}
@@ -687,330 +687,45 @@ public class HistUtil {
 		}
 		return map;
 	}
-	
-	
-	
- 	public static void main(String [] args) throws IOException {
-// 		double [] hist = {0.05922227386932682,0.05015219588933983,0.05015219588933983,0.0432162539046439,0.048018059894048774,0.06349054585990893,0.0832313038163512,0.09230138179633819,0.08483190581281949,0.11631041174336258,0.11844454773865364,0.15099012166684225,0.17659975361033492,0.2438250374620032,0.37827560516533976,0.5399364068086373,0.33879408925245524,0.34412942924068285,0.21501420152557393,0.17339854961739834,0.11737747974100811,0.12164575173159023,0.1056397317669073,0.09977085777985689,0.05922227386932682,0.05388693388109918,0.07522829383400974,0.06135640986461788,0.06562468185519998,0.03414617592465691,0.060289341866972344,0.029344369935252027};
-// 		System.out.println(FormatUtil.sum(hist));
-// 		System.out.println(FormatUtil.toString(normalizeArray(hist)));
-// 		System.out.println(FormatUtil.toString(normalizeArray(hist)));
-// 		double[] hist19361 = {0.193035, 0.154083, 0.193346, 0.156367, 0.052397, 0.086980,
-// 				0.055209, 0.092814, 0.000110, 0.000941, 0.000942, 0.000008, 
-// 				0.004480, 0.005731, 0.000521, 0.000837, 0.000005, 0.000312, 
-// 				0.000007, 0.000000, 0.000000, 0.001875, 0.000000, 0.000000,
-// 				0.000000, 0.000104, 0.000000, 0.000000, 0.000000, 0.000000, 
-// 				0.000000, 0.000000};
-// 		double[] hist19580 = {0.195751, 0.148861, 0.191064, 0.162926, 0.044170, 0.085227, 0.049483, 0.081265, 0.001563, 0.004896, 0.005208, 0.002396, 0.007813, 0.009792, 0.004271, 0.003125, 0.000000, 0.000208, 0.000000, 0.000000, 0.000625, 0.000729, 0.000000, 0.000000, 0.000000, 0.000313, 0.000000, 0.000312, 0.000104, 0.000000, 0.000000, 0.000000};
-// 		double[] hist19162 = {0.205735, 0.157401, 0.203663, 0.164692, 0.038031, 0.087312, 0.046256, 0.085333, 0.000212, 0.000000, 0.000001, 0.000000, 0.006042, 0.004896, 0.000105, 0.000000, 0.000006, 0.000000, 0.000001, 0.000000, 0.000001, 0.000208, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000208, 0.000000, 0.000000};
-//		double[] hist15993 = {0.242613, 0.123229, 0.242096, 0.117604, 0.003558, 0.126796, 0.007826, 0.132422, 0.002500, 0.000000, 0.000000, 0.000000, 0.000105, 0.000001, 0.000104, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.001250, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000};
-//		double[] hist16001 = {0.240956, 0.105108, 0.237823, 0.099792, 0.005528, 0.144397, 0.010641, 0.149192, 0.000208, 0.000000, 0.001250, 0.000000, 0.003334, 0.000521, 0.000312, 0.001042, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000};
-// 		double[] bins = {0, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 3, 0, 1, 0, 0, 1, 1, 0, 1, 2, 0, 1, 3, 1, 0, 0, 1, 0, 1, 1, 0, 2, 1, 0, 3, 1, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 3, 2, 0, 0, 2, 0, 1, 2, 0, 2, 2, 0, 3, 2, 1, 0, 2, 1, 1, 2, 1, 2, 2, 1, 3, 3, 0, 0, 3, 0, 1, 3, 0, 2, 3, 0, 3, 3, 1, 0, 3, 1, 1, 3, 1, 2, 3, 1, 3 };
-// 		double[][] vectors = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 0, 1}, {0, 1, 1}, {1, 1, 0}, {1, 1, 1}};
-//		System.out.println("emd between: " + DistanceUtil.getEmdLTwo(hist15993, hist16001, 3, bins));
-//		int numInterval = 5;
-//		double[] errorRecord = new double[2 * numInterval + 1];
-//		double[] errorGrid = new double[2 * numInterval + 2];
-//		double[] histA = hist15993;
-//		double[] histB = hist16001;
-//		double[] recordA = new double[2];
-//		double[] recordB = new double[2];
-//		double[] gridBound = new double[4];
-//		for (int i = 0 ; i < 7; i++) {
-//			double[] projectedBins = HistUtil.projectBins(bins, 3, vectors[i], 1);
-//			System.out.println("projected emd " + i + " : " + DistanceUtil.get1dEmd(histA, histB, projectedBins));
-//			System.out.println("normal emd " + i + " : " + getNormalEmd(histA, histB, projectedBins, 5));
-//			TreeMap<Double, Double> cdfA = getDiscreteCDF(histA, projectedBins);
-//			TreeMap<Double, Double> cdfB = getDiscreteCDF(histB, projectedBins);
-//			double tMin = cdfA.firstKey();
-//			double tMax = cdfA.lastKey();
-//			System.out.println("Absolute CDF difference: " + getProjectEmd(histA, histB, projectedBins));
-//			System.out.println("Discrete CDF difference: " + (getDiscreteCDFAreaBetween(cdfA, tMin, tMax) - getDiscreteCDFAreaBetween(cdfB, tMin, tMax)));
-//			System.out.println("Discrete A: " + getDiscreteCDFAreaBetween(cdfA, tMin, tMax));
-//			System.out.println("Discrete B: " + getDiscreteCDFAreaBetween(cdfB, tMin, tMax));			
-//			NormalDistributionImpl normalA = HistUtil.getNormal(histA, projectedBins);
-//			double mA = 1/normalA.getStandardDeviation();
-//			double bA = (-1)*normalA.getMean() /normalA.getStandardDeviation();
-//			recordA[0] = mA;
-//			recordA[1] = bA;
-//			System.out.print("Record A: " + FormatUtil.toString(recordA) + "; ");
-//			NormalDistributionImpl normalB = HistUtil.getNormal(histB, projectedBins);
-//			double mB = 1/normalB.getStandardDeviation();
-//			double bB = (-1) * normalA.getMean() /normalB.getStandardDeviation();
-//			recordB[0] = mB;
-//			recordB[1] = bB;
-//			System.out.println("Record B: " + FormatUtil.toString(recordB));
-//			double[] domain = new double[4];
-//			double[] slopes = new double[2];
-//			domain[0] = Math.min(mA, mB) - Math.abs(mB - mA)/2;
-//			domain[1] = Math.max(mA, mB) + Math.abs(mB - mA)/2;
-//			domain[2] = Math.min(bA, bB) - Math.abs(bB - bA) / 2;
-//			domain[3] = Math.max(bB, bA) + Math.abs(bB - bA) / 2;
-//			slopes[0] = FormatUtil.maxIn(projectedBins) * (-1);
-//			slopes[1] = FormatUtil.minIn(projectedBins) * (-1);
-//			Grid grid = new Grid(domain, slopes, 2);
-//			TreeMap<Double, Double> cdfA = getDiscreteCDFNormalized(histA, projectedBins);
-//			List<Double> errorA = HistUtil.getMinMaxError(normalA, cdfA, numInterval);
-//			double fullErrorA = HistUtil.getFullError(normalA, cdfA,FormatUtil.minIn(projectedBins) , FormatUtil.maxIn(projectedBins));
-//			TreeMap<Double, Double> cdfB = getDiscreteCDFNormalized(histB, projectedBins);
-//			List<Double> errorB = HistUtil.getMinMaxError(normalB, cdfB, numInterval);
-//			double fullErrorB = HistUtil.getFullError(normalB, cdfB,FormatUtil.minIn(projectedBins) , FormatUtil.maxIn(projectedBins));
-//			
-//			System.out.println();
-//			System.out.println(grid);
-//			
-//			for (int j = 0; j < 2 * numInterval; j++) {
-//				errorRecord[j] = errorA.get(j);
-//				errorGrid[j] = errorB.get(j);
-//			}
-//			errorRecord[2 * numInterval] = fullErrorA;
-//			errorGrid[2 * numInterval] = fullErrorB;
-//			errorGrid[2 * numInterval + 1] = fullErrorB;
-//			int gridId = (int) grid.getGridId(recordB);
-//			gridBound = grid.getGrid(gridId, gridBound);
-//			Direction direction = grid.locateRecordToGrid(recordA, gridBound);
-//			double gridEmd = grid.getEmdBr(recordA, errorRecord, gridBound, errorGrid, direction, numInterval);
-//			System.out.println("A record B grid: " + gridEmd);
-//			
-//			for (int j = 0; j < 2 * numInterval; j++) {
-//				errorRecord[j] = errorB.get(j);
-//				errorGrid[j] = errorA.get(j);
-//			}
-//			errorRecord[2 * numInterval] = fullErrorB;
-//			errorGrid[2 * numInterval] = fullErrorA;
-//			errorGrid[2 * numInterval + 1] = fullErrorA;
-//			gridId = (int) grid.getGridId(recordA);
-//			gridBound = grid.getGrid(gridId, gridBound);
-//			direction = grid.locateRecordToGrid(recordB, gridBound);
-//			gridEmd = grid.getEmdBr(recordB, errorRecord, gridBound, errorGrid, direction, numInterval);
-//			System.out.println("B record A grid: " + gridEmd);	
-//			System.out.println();
-//		}
-//		NormalDistributionImpl normal = new NormalDistributionImpl(-1.4996779501994864, 0.02281982762018056);
-//		System.out.println("Area between 0 to 1 " + getNormalCDFAreaBetween(normal, 0, 1.5));
-// 		int dimension = 3;
-//		double[] vector = new double[dimension];
-// 		vector = randomBin(vector);		
-//		double[] orv = new double[dimension];
-//		double[] thirdv = new double[dimension];
-//		orv = get3DOrthogonal(vector);	
-//		thirdv = get3DOrthogonal(vector, orv);	
-//		System.out.println(FormatUtil.toString(vector));
-//		System.out.println(FormatUtil.toString(orv));
-//		System.out.println(FormatUtil.toString(thirdv));
- 		
-// 		int dimension = 3;
-// 		int histLength = 32;
-// 		double[] histA = {0.06637509647543093, 0.05402624131721122, 0.013377926421404682, 0.014664265500385902, 0.04064831489580654, 0.034731155132492926, 0.05788525855415487, 0.0645742217648572, 0.04167738615899151, -0.004116285052739903, 0.018266014921533315, 0.008232570105479805, 0.04759454592230512, 0.021095960895291997, 0.04142011834319527, 0.057627990738358635, 0.04347826086956522, 0.05994340108052483, 0.03293028042191922, -5.145356315924878E-4, 0.03730383329045537, 0.014664265500385902, 0.028556727553383076, -0.003859017236943658, -0.0020581425263699513, -5.145356315924878E-4, 0.06200154360689478, 0.035245690764085416, 0.003859017236943658, 0.04296372523797273, 0.024697710316439414, 0.043220993053768975};
-// 		double[] histB = {0.05404089581304771, 0.008519961051606621, 0.037487828627069134, 0.01655306718597858, 0.007546251217137293, 0.02385589094449854, 0.019717624148003893, 0.037244401168451804, 0.015579357351509249, 0.02288218111002921, 0.030671859785783837, 0.035053554040895815, -0.004138266796494645, 0.035053554040895815, 0.023125608568646545, 0.047224926971762414, 0.026777020447906526, 0.037487828627069134, 0.05963972736124635, 0.05525803310613438, 0.012171372930866602, 0.01436222005842259, 0.005598831548198637, 0.054771178188899705, 0.06256085686465433, 0.05111976630963972, 0.04625121713729309, 0.04576436222005842, 0.036027263875365145, 0.03919182083739046, 0.03140214216163584, 0.011197663096397274};
-// 		double[] bins = {41,0,61,54,8,40,16,10,27,33,16,57,54,11,47,47,11,54,5,43,18,62,33,8,39,6,59,39,37,44,18,47,15,23,31,58,20,11,44,29,62,8,44,6,19,20,39,47,16,43,56,18,53,38,29,36,17,7,35,6,10,28,38,34,58,6,62,48,35,40,23,61,14,31,9,58,20,0,20,36,13,58,37,9,13,14,4,26,15,61,38,46,34,7,11,46};
-// 		System.out.println(DistanceUtil.getEmdLTwo(histA, histB, dimension, bins));
-// 		double[] histA = new double[histLength];
-// 		double[] histB = new double[histLength];
-// 		double[] histC = new double[histLength];
-// 		double[] bins = new double[dimension * histLength];
-// 		
-//	 	histA = normalizeArray(randomHist(histA));
-//		histB = normalizeArray(randomHist(histB));
-//		histC = normalizeArray(randomHist(histC));
-//		bins = randomBin(bins);
-//		int testRound = 100;
-//		
-//		double maxRatio = -Double.MAX_VALUE;
-//		double minRatio = Double.MAX_VALUE;
-//		double emdMaxRatio = -Double.MAX_VALUE;
-//		double emdMinRatio = Double.MAX_VALUE;
-//		double emdSum = 0.0;
-//		double emdBoundSum = 0.0;
-//		double flowSum = 0.0;
-		
-//		for (int i = 0; i < testRound; i++) {
-//		 	histA = normalizeArray(randomHist(histA));
-//			histB = normalizeArray(randomHist(histB));
-//			histC = normalizeArray(randomHist(histC));
-//			double flow = getFlowBetween(histA, FormatUtil.toObjectDoubleArray(histC), bins, dimension) + getFlowBetween(histB, FormatUtil.toObjectDoubleArray(histC), bins, dimension);
-//			double emdBound = DistanceUtil.getEmdLTwo(histA, histC, dimension, bins) + DistanceUtil.getEmdLTwo(histC, histB, dimension, bins);;
-//			double emd = DistanceUtil.getEmdLTwo(histA, histB, dimension, bins);
-//			flowSum += flow;
-//			emdSum += emd;
-//			emdBoundSum += emdBound;
-//			double ratio = flow / emd;
-//			maxRatio = maxRatio > ratio ? maxRatio : ratio;
-//			minRatio = minRatio > ratio ? ratio : minRatio;
-//			ratio = emdBound / emd;
-//			emdMaxRatio = emdMaxRatio > ratio ? emdMaxRatio : ratio;
-//			emdMinRatio = emdMinRatio > ratio ? ratio : emdMinRatio;
-//		}
-//		System.out.println("Bound in " + testRound + " : max " + emdMaxRatio + " ; min " + emdMinRatio + " ; avg " + emdBoundSum / emdSum);
-//		System.out.println("Flow in " + testRound + " : max " + maxRatio + " ; min " + minRatio + " ; avg " + flowSum / emdSum);
-	
-//		double maxA = getMaxFlow(histA, bins, dimension);
-//		double maxB = getMaxFlow(histB, bins, dimension);
-//		double emd = DistanceUtil.getEmdLTwo(histA, histB, dimension, bins);
-		
-//		System.out.println("Emd: " + emd + " ; maxA: " + maxA + " ; maxB: " + maxB);
-// 		int testRound = 500;
-//// 		int counter = 0;
-// 		double normalSum = 0.0;
-// 		double realSum = 0.0;
-// 		double projectSum = 0.0;
-// 		double dualSum = 0.0;
-// 		double indminSum = 0.0;
-// 		double minNormal = Double.MAX_VALUE;
-// 		double maxNormal = 0.0;
-// 		double minProject = Double.MAX_VALUE;
-// 		double maxProject = 0.0;
-// 		double minDual = Double.MAX_VALUE;
-// 		double maxDual = 0.0;
-// 		double minIndMin = 0.0;
-// 		double maxIndMin = 0.0;
-// 		bins = randomBin(bins);
-// 		int dualNumber = 7;
-// 		DualBound[] dual = new DualBound[dualNumber];
-// 		for (int i = 0; i < dualNumber; i++) {
-// 	 		histA = normalizeArray(randomHist(histA));
-// 			histB = normalizeArray(randomHist(histB));
-// 			dual[i] = new DualBound(histA, histB, bins, dimension);
-// 		}
-// 		
-// 		int counter = 0;
-// 		
-//// 		for (int i = 0; i < testRound; i++) {
-//// 			histA = normalizeArray(randomHist(histA));
-//// 			histB = normalizeArray(randomHist(histB));
-//// 			
-//// 			
-//// 			double emd = DistanceUtil.getEmdLTwo(histA, histB, dimension, bins);
-//// 			double projectEmd = HistUtil.getProjectEmd(histA, histB, bins, dimension);
-//// 			double normalEmd = HistUtil.getNormalEmd(histA, histB, bins, 5, dimension);
-//// 			//double dualEmd = HistUtil.getDualEmd(histA, histB, bins, dimension);
-//// 			double[] dualEmds = new double[dualNumber];
-//// 			for (int j = 0; j < dualNumber; j++) {
-//// 				dualEmds[j] = dual[j].getDualEmd(histA, histB);
-//// 			}
-//// 			double dualEmd = FormatUtil.maxIn(dualEmds);
-//// 			double indminEmd = DistanceUtil.getIndMinEmd(histA, histB, dimension, bins, DistanceType.LTWO, null);
-//// 			
-//// 			realSum += emd;
-//// 			projectSum += projectEmd;
-//// 			normalSum += normalEmd;
-//// 			dualSum += dualEmd;
-//// 			indminSum += indminEmd;
-//// 			
-//// 			double normalRatio =  normalEmd / emd;
-//// 			minNormal = normalRatio > minNormal ? minNormal : normalRatio;
-//// 			maxNormal = normalRatio > maxNormal ? normalRatio : maxNormal;
-//// 			double projectRatio = projectEmd / emd;
-//// 			minProject = projectRatio > minProject ? minProject : projectRatio;
-//// 			maxProject = projectRatio > maxProject ? projectRatio : maxProject;
-//// 			double dualRatio = dualEmd / emd;
-//// 			minDual = dualRatio > minDual ? minDual : dualRatio;
-//// 			maxDual = dualRatio > maxDual ? dualRatio : maxDual;
-//// 			
-//// 			if (dualEmd > normalEmd) {
-//// 				counter++;
-//// 			}
-//// 		}
-// 		
-// 		
-//// 		System.out.println("Projection: " + (projectSum / realSum) * 100 + "%" + " min : " + minProject + " max: " + maxProject);
-//// 		System.out.println("Normal: " + (normalSum / realSum) * 100 + "%" + " min : " + minNormal + " max: " + maxNormal);
-//// 		System.out.println("Dual: " + (dualSum / realSum) * 100 + "%");
-//// 		System.out.println("Independent minimization: " + (indminSum / realSum) * 100 + "%");
-//// 		System.out.println("Dual vs. Normal: " + counter * 100/testRound + "%" + " min: " + minDual + " max: " + maxDual);
-// 		int realCounter = 0;
-// 		int pruneCounter = 0;
-// 		long emdTimer = 0;
-// 		long indminTimer = 0;
-// 		long normalTimer = 0;
-// 		long dualTimer = 0;
-// 		for (int i = 0; i < testRound; i++) {
-// 			histA = normalizeArray(randomHist(histA));
-// 			histB = normalizeArray(randomHist(histB));			
-// 			long tmp = System.nanoTime();
-// 			double emd = DistanceUtil.getEmdLTwo(histA, histB, dimension, bins);
-// 			
-// 			emdTimer += System.nanoTime() - tmp;
-// 			
-// 			tmp = System.nanoTime();
-// 			double indminEmd = DistanceUtil.getIndMinEmd(histA, histB, dimension, bins, DistanceType.LTWO, null);
-// 			indminTimer += System.nanoTime() - tmp;
-// 			
-// 			tmp = System.nanoTime();
-// 			double[] dualEmds = new double[dualNumber];
-// 			for (int j = 0; j < dualNumber; j++) {
-// 				dualEmds[j] = dual[j].getDualEmd(histA, histB);
-// 			}
-// 			double dualEmd = FormatUtil.maxIn(dualEmds);
-// 			dualTimer += System.nanoTime() - tmp;
-// 			
-// 			tmp = System.nanoTime();
-// 			double normalEmd = HistUtil.getNormalEmd(histA, histB, bins, 5, dimension);
-// 			normalTimer += System.nanoTime() - tmp;
-// 			
-// 			realSum += emd;
-// 			normalSum += normalEmd;
-// 			dualSum += dualEmd;
-// 			indminSum += indminEmd;
-// 			
-// 			double normalRatio =  normalEmd / emd;
-// 			minNormal = normalRatio > minNormal ? minNormal : normalRatio;
-// 			maxNormal = normalRatio > maxNormal ? normalRatio : maxNormal;
-// 			double dualRatio = dualEmd / emd;
-// 			minDual = dualRatio > minDual ? minDual : dualRatio;
-// 			maxDual = dualRatio > maxDual ? dualRatio : maxDual; 
-// 			
-// 			if (indminEmd > 0.1*emd) {
-// 				pruneCounter++;
-// 			}
-// 		}
-// 		
-// 		System.out.println("Computed " + testRound + "avg Emd: " + realSum / testRound);
-// 		System.out.println("exact in " + emdTimer / 1000000 + "ms");
-// 		System.out.println("indepedent min in: " + indminTimer / 1000000 + " ms " + indminSum / realSum * 100 + "%");
-// 		System.out.println("dual in: " + dualTimer / 1000000 + " ms " + dualSum / realSum * 100 + "%");
-// 		System.out.println("normal in: " + normalTimer / 1000000 + " ms " + normalSum / realSum * 100 + "%");
-// 		
-// 		System.out.println(pruneCounter);
- 		int length = 12;
- 		int dimension = 3;
- 		double[] bins = new double[length * dimension];
- 		bins = randomBin(bins);
- 		int sample = 100;
- 		double[][] histSample = new double[sample][length];
- 		for (int i = 0; i < sample; i++) {
- 			histSample[i] = normalizeArray(randomHist(new double[length]));
- 		}
- 		int round = sample * (sample - 1) /2;
- 		double[] emdCollection = new double[round];
- 		double[] euclideanCollection = new double[round];
-// 		double[] loneCollection = new double[round];
- 		int counter = 0;
- 		for (int i = 0; i < sample; i++) {
- 			for (int j = i + 1; j < sample; j++) {
- 				emdCollection[counter] = DistanceUtil.getEmdLTwo(histSample[i], histSample[j], dimension, bins);
- 				euclideanCollection[counter] = DistanceUtil.getLTWODist(histSample[i], histSample[j]);
- 				counter++;
- 			}
- 		}
-// 		
- 		statistics.setData(emdCollection);
- 		System.out.println("0% :" + statistics.evaluate(0.00001));
- 		System.out.println("1% :" + statistics.evaluate(1));
- 		System.out.println("10% :" + statistics.evaluate(10));
- 		System.out.println("20% :" + statistics.evaluate(20));
- 		System.out.println("30% :" + statistics.evaluate(30));
- 		System.out.println("40% :" + statistics.evaluate(40));
- 		System.out.println("50% :" + statistics.evaluate(50));
- 		System.out.println("60% :" + statistics.evaluate(60));
- 		System.out.println("70% :" + statistics.evaluate(70));
- 		System.out.println("80% :" + statistics.evaluate(80));
- 		System.out.println("90% :" + statistics.evaluate(90));
- 		System.out.println("100% :" + statistics.evaluate(100));	
- 		
- 		FileUtil.writeContent(FormatUtil.formatDoubleArray(emdCollection));
- 		FileUtil.writeContent(FormatUtil.formatDoubleArray(euclideanCollection));
- 		System.exit(0);
+
+	public static double[] substractAvg(double[] array) {
+		double avg = HistUtil.avg(array);
+		for (int i = 0; i < array.length; i++) {
+			array[i] = array[i] - avg;
+		}
+		return array;
+	}
+
+	public static double sum(double[] array) {
+		double sum = 0;
+		for (double val : array) {
+			sum += val;
+		}
+		return sum;
+	}
+
+	public static double avg(double[] array) {
+		double sum = 0;
+		for (double val : array) {
+			sum += val;
+		}
+		return sum / array.length;
+	}
+
+	public static double minIn(double[] array) {
+		double min = Double.MAX_VALUE;
+		for (double val : array) {
+			min = min > val ? val : min;
+		}
+		return min;
+	}
+
+	public static double maxIn(double[] array) {
+		double max = -Double.MAX_VALUE;
+		for (double val : array) {
+			max = max < val ? val : max;
+		}
+		return max;
 	}
 	
 }

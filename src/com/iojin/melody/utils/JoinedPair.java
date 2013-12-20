@@ -44,7 +44,7 @@ public class JoinedPair implements Comparable<JoinedPair> {
 	@Override
 	public int compareTo(JoinedPair o) {
 		if (Math.abs(this.dist - o.dist) < DistanceUtil.EPSILON) {
-			if (this.rid == o.sid && this.sid == o.rid) {
+			if ((this.rid == o.sid && this.sid == o.rid) || (this.sid == o.sid && this.rid == o.rid)) {
 				return 0;
 			}
 			else if (this.rid != o.rid) {
@@ -54,7 +54,7 @@ public class JoinedPair implements Comparable<JoinedPair> {
 				return (int)(this.sid - o.sid);
 			}
 		}
-		else return this.dist - o.dist > 0 ? 1 : -1;
+		else return (this.dist - o.dist) > 0 ? 1 : -1;
 	}
 	
 	@Override

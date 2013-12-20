@@ -88,7 +88,7 @@ public class Tester {
 			double[] tmin = new double[numVectors];
 			double[] tmax = new double[numVectors];
 			for (int v = 0; v < numVectors; v++) {
-				projectedBins[v] = FormatUtil.substractAvg(HistUtil.projectBins(bins, dimension, FormatUtil.toDoubleArray(vectors.get(v))));
+				projectedBins[v] = HistUtil.substractAvg(HistUtil.projectBins(bins, dimension, FormatUtil.toDoubleArray(vectors.get(v))));
 				tmin[v] = HistUtil.getMinIn(projectedBins[v]);
 				tmax[v] = HistUtil.getMaxIn(projectedBins[v]);
 			}

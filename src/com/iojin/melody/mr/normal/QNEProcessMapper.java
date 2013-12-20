@@ -114,8 +114,8 @@ public class QNEProcessMapper extends Mapper<Object, Text, LongWritable, Text> {
 		t = new double[2 * numVector];
 		for (int i = 0; i < numVector; i++) {
 			double[] eachProjection = FormatUtil.getNthSubArray(projectedBins, numBins, i);
-			t[i * 2] += HistUtil.getMinIn(eachProjection) - FormatUtil.avg(eachProjection);	
-			t[i * 2 + 1] += HistUtil.getMaxIn(eachProjection) - FormatUtil.avg(eachProjection);			
+			t[i * 2] += HistUtil.getMinIn(eachProjection) - HistUtil.avg(eachProjection);	
+			t[i * 2 + 1] += HistUtil.getMaxIn(eachProjection) - HistUtil.avg(eachProjection);			
 		}		
 		
 		quantileArray = FileUtil.getMultiFromDistributedCache(conf, domainName, 1 + (grid + 3) * 2);
@@ -260,7 +260,7 @@ public class QNEProcessMapper extends Mapper<Object, Text, LongWritable, Text> {
 //		long recordTimer = System.nanoTime();
 		for (int i = 0; i < numVector; i++) {
 			double[] eachProjection = FormatUtil.getNthSubArray(projectedBins, numBins, i);
-			eachProjection = FormatUtil.substractAvg(eachProjection);
+			eachProjection = HistUtil.substractAvg(eachProjection);
 			/*
 			 * approximate the projected histogram using a normal distribution
 			 */		
@@ -371,8 +371,8 @@ public class QNEProcessMapper extends Mapper<Object, Text, LongWritable, Text> {
 	private boolean shouldDistribute(String recordCombination, String combination) {
 		double[] recordIds = FormatUtil.toDoubleArray(recordCombination);
 		double[] combinationIds = FormatUtil.toDoubleArray(combination);
-		double recordSum = FormatUtil.sum(recordIds);
-		double combinationSum = FormatUtil.sum(combinationIds);
+		double recordSum = HistUtil.sum(recordIds);
+		double combinationSum = HistUtil.sum(combinationIds);
 		if (recordCombination.equals(combination)) {
 			return false;
 		}

@@ -38,7 +38,9 @@ public class BaselineBSP extends
 	BSP<Text, Text, Text, Text, VectorWritable>{
 	
 	private Configuration conf;
+	private String query;
 	private int paraK = 0;
+	private double paraThreshold = 0.0d;
 	
 	private boolean master;
 	private boolean nativeDone = false;
@@ -64,8 +66,9 @@ public class BaselineBSP extends
 	private static final double FINAL_MSG = 2.0d;
 	
 //	private static final int MSG_BATCH = 10;
-	
+	public static final String QUERY = "emd.join.query";
 	public static final String PARAK = "emd.join.para.k";
+	public static final String PARATHRESHOLD = "emd.join.para.threshold";
 	public static final String DIMENSION = "emd.join.para.dimension";
 	public static final String NUMBIN = "emd.join.num.bin";
 	public static final String NUMVEC = "emd.join.num.vector";
@@ -88,11 +91,15 @@ public class BaselineBSP extends
 		
 		master = peer.getPeerIndex() == peer.getNumPeers() / 2;
 		conf = peer.getConfiguration();
+
 		paraK = conf.getInt(PARAK, 0);
 		dimension = conf.getInt(DIMENSION, 0);
 		numBins = conf.getInt(NUMBIN, 0);
 		numVectors = conf.getInt(NUMVEC, 0);
-		
+		query = conf.get(QUERY);
+		if (query.equalsIgnoreCase("distance")) {
+			paraThreshold = Double.valueOf(conf.get(PARATHRESHOLD));
+		}
 		binPath = conf.get(PATHBIN);
 		vectorPath = conf.get(PATHVEC);
 		
@@ -131,8 +138,15 @@ public class BaselineBSP extends
 	@Override
 	public final void cleanup(BSPPeer<Text, Text, Text, Text, VectorWritable> peer) throws IOException {
 		if (master) {
-			if (joinedPairs.size() >= paraK) {
-				for (int i = 0; i < paraK; i++) {
+			int numPrint = 0;
+			if (query.equalsIgnoreCase("topk")) {
+				numPrint = paraK;
+			}
+			else if (query.equalsIgnoreCase("distance")) {
+				numPrint = joinedPairs.size();
+			}
+			if ((joinedPairs.size() >= paraK && query.equalsIgnoreCase("topk")) || query.equalsIgnoreCase("distance")) {
+				for (int i = 0; i < numPrint; i++) {
 					JoinedPair pair = joinedPairs.pollFirst();
 					peer.write(new Text(String.valueOf(i)), new Text(pair.toString()));
 				}
@@ -258,7 +272,13 @@ public class BaselineBSP extends
 	}
 	
 	private void join(List<DoubleVector> histograms) {
-		double threshold = getLocalThreshold();
+		double threshold = 0.0d;
+		if (query.equalsIgnoreCase("topk")) {
+			threshold = getLocalThreshold();
+		}
+		else if (query.equalsIgnoreCase("distance")) {
+			threshold = paraThreshold;
+		}
 		for (int i = 0; i < histograms.size(); i++) {
 			double[] recordA = histograms.get(i).toArray();
 			long rid = (long) recordA[0];
@@ -270,13 +290,16 @@ public class BaselineBSP extends
 				
 				if (!filter.filter(weightA, weightB, threshold)) {
 					double emd = DistanceUtil.getEmdLTwo(weightA, weightB, dimension, bins);
-					if (emd < threshold) {
+					if (emd < threshold|| (query.equalsIgnoreCase("distance") && (emd - threshold) <= DistanceUtil.EPSILON )) {
 						JoinedPair pair = new JoinedPair(rid, sid, emd);
 						joinedPairs.add(pair);
-						if (joinedPairs.size() > paraK) {
-							joinedPairs.pollLast();
+
+						if (query.equalsIgnoreCase("topk")) {
+							if (joinedPairs.size() > paraK) {
+								joinedPairs.pollLast();
+							}
+							threshold = getLocalThreshold();
 						}
-						threshold = getLocalThreshold();
 					}
 				}
 			}
@@ -284,7 +307,13 @@ public class BaselineBSP extends
 	}
 	
 	private void join(List<DoubleVector> nat, List<DoubleVector> gus, double t, BSPPeer<Text, Text, Text, Text, VectorWritable> peer) throws IOException {
-		double threshold = getLocalThreshold(t);
+		double threshold = 0.0d;
+		if (query.equalsIgnoreCase("topk")) {
+			threshold = getLocalThreshold(t);
+		}
+		else if (query.equalsIgnoreCase("distance")) {
+			threshold = paraThreshold;
+		}
 		for (int i = 0; i < nat.size(); i++) {
 			double[] recordA = nat.get(i).toArray();
 			long rid = (long) recordA[0];
@@ -298,13 +327,16 @@ public class BaselineBSP extends
 					if (!filter.filter(weightA, weightB, threshold)) {
 						double emd = DistanceUtil.getEmdLTwo(weightA, weightB, dimension, bins);
 //						peer.write(new Text("join "), new Text(rid + " " + sid + " : " + emd));
-						if (emd < threshold) {
+						if (emd < threshold|| (query.equalsIgnoreCase("distance") && (emd - threshold) <= DistanceUtil.EPSILON )) {
 							JoinedPair pair = new JoinedPair(rid, sid, emd);
 							joinedPairs.add(pair);
-							if (joinedPairs.size() > paraK) {
-								joinedPairs.pollLast();
+
+							if (query.equalsIgnoreCase("topk")) {
+								if (joinedPairs.size() > paraK) {
+									joinedPairs.pollLast();
+								}
+								threshold = getLocalThreshold(t);
 							}
-							threshold = getLocalThreshold(t);
 						}
 					}
 				}
@@ -381,15 +413,17 @@ public class BaselineBSP extends
 	}
 	
 	private void pruneLocalPairs(double threshold) {
-		int toRemove = 0;
-		for (JoinedPair pair : joinedPairs) {
-//			if (pair.getDist() >= threshold) {
-			if (pair.getDist() > threshold) {
-				toRemove++;
+		if (query.equalsIgnoreCase("topk")) {
+			int toRemove = 0;
+			for (JoinedPair pair : joinedPairs) {
+	//			if (pair.getDist() >= threshold) {
+				if (pair.getDist() > threshold) {
+					toRemove++;
+				}
 			}
-		}
-		for (int i = 0; i < toRemove; i++) {
-			joinedPairs.pollLast();
+			for (int i = 0; i < toRemove; i++) {
+				joinedPairs.pollLast();
+			}
 		}
 	}
 	

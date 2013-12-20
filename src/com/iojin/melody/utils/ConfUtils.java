@@ -1,10 +1,13 @@
 package com.iojin.melody.utils;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang.StringUtils;
 
 public class ConfUtils {
 	
@@ -27,6 +30,15 @@ public class ConfUtils {
 	public static final String TASK = "parallel.task.number";
 	public static final String PIVOT = "mrsim.pivot.number";
 	public static final String RATIO = "melody.sample.ratio";
+	
+	public static final String GENERATEMODE = "generate.mode";
+	public static final String GENERATEHDFS = "generate.hdfs.name";
+	public static final String GENERATEINPUT = "generate.input.image.dir";
+	public static final String GENERATEOUTPUT = "generate.output.hist.dir";
+	public static final String GENERATEFEATURE = "generate.enabled.features";
+	public static final String GENERATEGRID = "generate.grid.granularity";
+	
+	private static final String SEPARATOR = "/";
 	
 	private static Configuration instance;
 	
@@ -67,6 +79,16 @@ public class ConfUtils {
 		if (instance == null) readConf();
 		return instance.getInt(key);
 	}
+	
+	public static Set<String> getStringSet(String key) throws ConfigurationException {
+		HashSet<String> set = new HashSet<String>();
+		String[] array = ConfUtils.getString(key).split(SEPARATOR);
+		for (String each : array) {
+			set.add(StringUtils.trim(each.toLowerCase()));
+		}
+		return set;
+	}
+	
 	
 	protected ConfUtils (){
 		

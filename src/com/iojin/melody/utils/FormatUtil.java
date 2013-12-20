@@ -96,22 +96,6 @@ public class FormatUtil {
 		return sub;
 	}	
 	
-	public static double maxIn(double[] array) {
-		double max = -Double.MAX_VALUE;
-		for (double val : array) {
-			max = max < val ? val : max;
-		}
-		return max;
-	}
-	
-	public static double minIn(double[] array) {
-		double min = Double.MAX_VALUE;
-		for (double val : array) {
-			min = min > val ? val : min;
-		}
-		return min;
-	}
-	
 	public static String formatDoubleArray(double[] values) {
 		String out = "";
 		for (double val : values) {
@@ -190,6 +174,8 @@ public class FormatUtil {
 		return ids;
 	}
 	
+	
+	
 	public static String toString(double[] array) {
 		String display = "[";
 		for (double val : array) {
@@ -198,6 +184,15 @@ public class FormatUtil {
 		display = display.substring(0, display.length() - 2);
 		display +="]";
 		return display;
+	}
+	
+	public static String toTextString(int[] array) {
+		String string = "";
+		for (int val : array) {
+			string += val + " ";
+		}
+		string.trim();
+		return string;
 	}
 	
 	public static String toTextString(double[] array) {
@@ -285,30 +280,6 @@ public class FormatUtil {
 			combination += values[i] + " ";
 		}
 		return combination.trim();
-	}
-	
-	public static double avg(double[] array) {
-		double sum = 0;
-		for (double val : array) {
-			sum += val;
-		}
-		return sum / array.length;
-	}
-	
-	public static double sum(double[] array) {
-		double sum = 0;
-		for (double val : array) {
-			sum += val;
-		}
-		return sum;
-	}	
-	
-	public static double[] substractAvg(double[] array) {
-		double avg = avg(array);
-		for (int i = 0; i < array.length; i++) {
-			array[i] = array[i] - avg;
-		}
-		return array;
 	}
 	
 	public static int countZero(double[] array) {

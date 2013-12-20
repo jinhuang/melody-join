@@ -40,47 +40,54 @@ public class Normal {
 	private static Random random = new Random();
 	
 	public static void main(String[] args) throws IOException, URISyntaxException, ClassNotFoundException, InterruptedException {
-		if (args.length != 12) {
-			System.out.println("USAGE: <NUM_TASK> <PARAK> <DIMENSION> <NUM_BIN> <NUM_VECTOR> <NUM_GRID> <INPUT_PATH> <BIN_PATH> <VECTOR_PATH> <OUTPUT_PATH> <CACHED> <BATCH>");
+		if (args.length != 13) {
+			System.out.println("USAGE: <QUERY> <NUM_TASK> <PARAK (PARATHRESHOLD)> <DIMENSION> <NUM_BIN> <NUM_VECTOR> <NUM_GRID> <INPUT_PATH> <BIN_PATH> <VECTOR_PATH> <OUTPUT_PATH> <CACHED> <BATCH>");
 			return;
 		}
 		HamaConfiguration conf = new HamaConfiguration();
 		conf.set("mapred.child.java.opts", "-Xmx512M");
-		Path out = new Path(args[9]);
+		Path out = new Path(args[10]);
 		FileSystem fs = FileSystem.get(conf);
 		
-		FileUtil.deleteIfExistOnHDFS(conf, args[9]);
+		FileUtil.deleteIfExistOnHDFS(conf, args[10]);
 		FileUtil.addDependency(conf);
-		DistributedCache.addCacheFile(new URI(args[7]),conf);
 		DistributedCache.addCacheFile(new URI(args[8]),conf);
+		DistributedCache.addCacheFile(new URI(args[9]),conf);
 		
-		conf.setInt(NormalBSP.NUMTASK, Integer.valueOf(args[0]));
-		conf.setInt(NormalBSP.PARAK, Integer.valueOf(args[1]));
-		conf.setInt(NormalBSP.DIMENSION, Integer.valueOf(args[2]));
-		conf.setInt(NormalBSP.NUMBIN, Integer.valueOf(args[3]));
-		conf.setInt(NormalBSP.NUMVEC, Integer.valueOf(args[4]));
+		conf.set(NormalBSP.QUERY, args[0]);
+		conf.setInt(NormalBSP.NUMTASK, Integer.valueOf(args[1]));
+		// to support both top-k and distance join
+		if (args[0].equalsIgnoreCase("topk")) {
+			conf.setInt(NormalBSP.PARAK, Integer.valueOf(args[2]));
+		}
+		else if (args[0].equalsIgnoreCase("distance")) {
+			conf.set(NormalBSP.PARATHRESHOLD, args[2]);
+		}
+		conf.setInt(NormalBSP.DIMENSION, Integer.valueOf(args[3]));
+		conf.setInt(NormalBSP.NUMBIN, Integer.valueOf(args[4]));
+		conf.setInt(NormalBSP.NUMVEC, Integer.valueOf(args[5]));
 		conf.setInt(NormalBSP.NUMINTERVAL, numInterval);
 		conf.setInt(NormalBSP.NUMDUAL, numDuals);
 		
 		conf.setInt(NormalBSP.LENGTHERROR, lengthError);
-		conf.set(NormalBSP.PATHIN, args[6]);
-		conf.set(NormalBSP.PATHPREIN, args[6] + File.separator + "prepared");
+		conf.set(NormalBSP.PATHIN, args[7]);
+		conf.set(NormalBSP.PATHPREIN, args[7] + File.separator + "prepared");
 		Path in = new Path(conf.get(NormalBSP.PATHPREIN));
 		if (fs.isFile(in)) {
 			System.out.println("Input should be a directory");
 			return;
 		}
 		
-		numGrid = Integer.valueOf(args[5]);
+		numGrid = Integer.valueOf(args[6]);
 		conf.setInt(NormalBSP.NUMGRID, numGrid);
 
-		conf.set(NormalBSP.PATHCELL, args[6] + File.separator + "cell");
-		conf.set(NormalBSP.PATHGRID, args[6] + File.separator + "grid");
-		conf.set(NormalBSP.PATHBIN, args[7]);
-		conf.set(NormalBSP.PATHVEC, args[8]);
-		conf.set(NormalBSP.PATHOUT, args[9]);
-		conf.setBoolean(NormalBSP.CACHED, Boolean.valueOf(args[10]));
-		conf.setInt(NormalBSP.MSG_BATCH, Integer.valueOf(args[11]));
+		conf.set(NormalBSP.PATHCELL, args[7] + File.separator + "cell");
+		conf.set(NormalBSP.PATHGRID, args[7] + File.separator + "grid");
+		conf.set(NormalBSP.PATHBIN, args[8]);
+		conf.set(NormalBSP.PATHVEC, args[9]);
+		conf.set(NormalBSP.PATHOUT, args[10]);
+		conf.setBoolean(NormalBSP.CACHED, Boolean.valueOf(args[11]));
+		conf.setInt(NormalBSP.MSG_BATCH, Integer.valueOf(args[12]));
 		conf.set("bsp.local.tasks.maximum", "" + Runtime.getRuntime().availableProcessors());
 		
 		FileUtil.deleteIfExistOnHDFS(conf, conf.get(NormalBSP.PATHPREIN));
@@ -88,7 +95,7 @@ public class Normal {
 		FileUtil.deleteIfExistOnHDFS(conf, conf.get(NormalBSP.PATHGRID));
 		
 		BSPJob job = NormalBSP.createJob(conf, in, out);
-		job.setNumBspTask(Integer.valueOf(args[0]));
+		job.setNumBspTask(Integer.valueOf(args[1]));
 		TimerUtil.start();
 		prepareInput(conf);
 		job.waitForCompletion(true);
@@ -121,7 +128,7 @@ public class Normal {
 		double[] tmin = new double[numVectors];
 		double[] tmax = new double[numVectors];
 		for (int v = 0; v < numVectors; v++) {
-			projectedBins[v] = FormatUtil.substractAvg(HistUtil.projectBins(bins, dimension, FormatUtil.toDoubleArray(vectors.get(v))));
+			projectedBins[v] = HistUtil.substractAvg(HistUtil.projectBins(bins, dimension, FormatUtil.toDoubleArray(vectors.get(v))));
 			tmin[v] = HistUtil.getMinIn(projectedBins[v]);
 			tmax[v] = HistUtil.getMaxIn(projectedBins[v]);
 		}
@@ -310,7 +317,11 @@ public class Normal {
 			for (String cell : workload.get(id)) {
 //				out.writeBytes(cell + "\n");
 				for (Integer each : cellIds.get(cell)) {
-					out.writeBytes(id + ";" + cell + ";" + FormatUtil.toTextString(histograms.get(each)) + "\n");
+					out.writeBytes(id + ";" + cell + ";" + FormatUtil.toTextString(histograms.get(each)) + "\t");
+					for (int v = 0; v < numVectors; v++) {
+						out.writeBytes(ms[v][each] + " " + bs[v][each] + " " + FormatUtil.toTextString(error[v][each]) + ",");
+					}
+					out.writeBytes("\n");
 				}				
 			}
 			out.flush();

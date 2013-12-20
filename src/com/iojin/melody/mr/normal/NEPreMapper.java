@@ -96,7 +96,7 @@ public class NEPreMapper extends Mapper<Object, Text, LongWritable, Text> {
 		NormalDistributionImpl[] normals = new NormalDistributionImpl[numVector];
 		for (int i = 0; i < numVector; i++) {
 			double[] eachProjection = FormatUtil.getNthSubArray(projectedBins, numBins, i);
-			eachProjection = FormatUtil.substractAvg(eachProjection);
+			eachProjection = HistUtil.substractAvg(eachProjection);
 			normals[i] = HistUtil.getNormal(weights, eachProjection);
 		}
 		

@@ -72,8 +72,8 @@ public class QNESpaceMapper extends Mapper<Object, Text, Text, Text> {
 		t = new double[2 * numVector];
 		for (int i = 0; i < numVector; i++) {
 			double[] eachProjection = FormatUtil.getNthSubArray(projectedBins, numBins, i);
-			t[i * 2] += HistUtil.getMinIn(eachProjection) - FormatUtil.avg(eachProjection);	
-			t[i * 2 + 1] += HistUtil.getMaxIn(eachProjection) - FormatUtil.avg(eachProjection);			
+			t[i * 2] += HistUtil.getMinIn(eachProjection) - HistUtil.avg(eachProjection);	
+			t[i * 2 + 1] += HistUtil.getMaxIn(eachProjection) - HistUtil.avg(eachProjection);			
 		}		
 		
 		quantileArray = FileUtil.getMultiFromDistributedCache(conf, domainName, 1 + (grid + 3) * 2);
@@ -139,7 +139,7 @@ public class QNESpaceMapper extends Mapper<Object, Text, Text, Text> {
 			 * approximate the projected histogram using a normal distribution
 			 */
 			double[] eachProjection = FormatUtil.getNthSubArray(projectedBins, numBins, i);
-			eachProjection = FormatUtil.substractAvg(eachProjection);
+			eachProjection = HistUtil.substractAvg(eachProjection);
 
 			normals[i] = HistUtil.getNormal(weights, eachProjection);		
 			

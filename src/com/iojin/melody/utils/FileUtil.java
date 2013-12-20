@@ -9,10 +9,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
@@ -30,18 +32,45 @@ public class FileUtil {
 		mathDependency = path;
 	}
 	
-	private static final String local = "test.out";
 	
-	public static void writeContent(String content) throws IOException {
-		File file = new File(local);
+	public static void writeContent(String path, String content) throws IOException {
+		File file = new File(path);
 		if (!file.exists()) {
 			file.createNewFile();
 		}
 		BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 		writer.write(content + "\n");
-		System.out.println(file.getAbsolutePath());
+//		System.out.println(file.getAbsolutePath());
 		writer.close();
 	}
+	
+	public static void writeContent(String path, Map<Long, String> map) throws IOException {
+		File file = new File(path);
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+		BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
+		for (Long id : map.keySet()) {
+			writer.write(id + " => " + map.get(id) + "\n");
+		}
+		writer.close();
+	}
+	
+	public static void writeContentToHDFS(String out, String content, FileSystem fs) throws IOException {
+		Path path = new Path(out);
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(path, true)));
+		writer.write(content + "\n");
+		writer.close();
+	}
+	
+	public static void writeContentToHDFS(String out, Map<Long, String> map, FileSystem fs) throws IOException {
+		Path path = new Path(out);
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(path, true)));
+		for (Long id : map.keySet()) {
+			writer.write(id + " => " + map.get(id) + "\n");
+		}
+		writer.close();
+	}	
 	
 	public static double [] getData(String addr,int size){
 		double [] datas = new double[size];
@@ -159,6 +188,17 @@ public class FileUtil {
 		return;
 	}
 	
+	public static void getAllImagesOnHDFS(Path path, FileSystem fs, List<String> list) throws IOException {
+		for (FileStatus each : fs.listStatus(path)) {
+			if (each.isDir()) {
+				getAllImagesOnHDFS(each.getPath(), fs, list);
+			}
+			else {
+				list.add(each.getPath().toString());
+			}
+		}
+	}
+	
 	// for S3
 //	public static double[] readFromHDFS(Configuration conf, String path) {
 //		Path pt = new Path(path);
@@ -182,7 +222,7 @@ public class FileUtil {
 			FileSystem fs = FileSystem.get(conf);
 			FileStatus status[] = fs.listStatus(pt);
 			for (FileStatus file : status) {
-				System.out.println("read from " + file.getPath());
+//				System.out.println("read from " + file.getPath());
 				BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(file.getPath())));
 				String line = br.readLine();
 				while(null != line) {

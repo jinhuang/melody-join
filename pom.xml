@@ -28,13 +28,25 @@
       	<configuration>
       		<source>1.6</source>
       		<target>1.6</target>
+      		<archive>
+      			<manifest>
+      				<mainClass>com.iojin.melody.Generate</mainClass>
+      			</manifest>
+      		</archive>
       		<descriptorRefs>
       			<descriptorRef>jar-with-dependencies</descriptorRef>
       		</descriptorRefs>
       	</configuration>
       </plugin>
+      
     </plugins>
   </build>
+  <repositories>
+  	<repository>
+  		<id>Local Repo</id>
+  		<url>file://${basedir}/lib</url>
+  	</repository>
+  </repositories>
   <dependencies>
   	<dependency>
   		<groupId>org.apache.hadoop</groupId>
@@ -76,7 +88,30 @@
 		<artifactId>commons-collections</artifactId>
 		<version>3.2.1</version>
 	</dependency>
-
-                    
+	<dependency>
+		<groupId>org.apache.lucene</groupId>
+		<artifactId>lucene-core</artifactId>
+		<version>4.6.0</version>
+	</dependency>           
+    <dependency>
+		<groupId>org.apache.lucene</groupId>
+		<artifactId>lucene-queryparser</artifactId>
+		<version>4.6.0</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.lucene</groupId>
+		<artifactId>lucene-analyzers-common</artifactId>
+		<version>4.6.0</version>
+	</dependency>
+	<dependency>
+		<groupId>com.sangupta</groupId>
+		<artifactId>jopensurf</artifactId>
+		<version>1.0.0</version>
+	</dependency>
+	<dependency>
+		<groupId>com.semanticmetadata</groupId>
+		<artifactId>lire</artifactId>
+		<version>0.9.4</version>
+	</dependency>                                         
   </dependencies>
 </project>

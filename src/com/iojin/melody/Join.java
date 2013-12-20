@@ -85,34 +85,48 @@ public class Join {
 				EmdJoin.main(passArgs);
 			}
 			else if (method.equalsIgnoreCase("bspmelody")) {
+				passArgs = new String[13];
+				passArgs[0] = ConfUtils.getString(ConfUtils.QUERY);
+				passArgs[1] = String.valueOf(worker);
+				// to support both topk and distance join
+				if (passArgs[0].equalsIgnoreCase("topk")) {
+					passArgs[2] = String.valueOf(ConfUtils.getInteger(ConfUtils.PARAK));
+				}
+				else if (passArgs[0].equalsIgnoreCase("distance")) {
+					passArgs[2] = String.valueOf(ConfUtils.getDouble(ConfUtils.THRESHOLD));
+				}
+				passArgs[3] = String.valueOf(dimension);
+				passArgs[4] = String.valueOf(numBin);
+				passArgs[5] = String.valueOf(numVector);
+				passArgs[6] = String.valueOf(grid);
+				passArgs[7] = input;
+				passArgs[8] = bin;
+				passArgs[9] = vector;
+				passArgs[10] = output;
+				passArgs[11] = String.valueOf(ConfUtils.getBoolean(ConfUtils.CACHED));
+				passArgs[12] = String.valueOf(ConfUtils.getInteger(ConfUtils.BATCH));
+				Normal.main(passArgs);
+			}
+			else if (method.equalsIgnoreCase("bspb")) {
 				passArgs = new String[12];
-				passArgs[0] = String.valueOf(worker);
-				passArgs[1] = String.valueOf(ConfUtils.getInteger(ConfUtils.PARAK));
-				passArgs[2] = String.valueOf(dimension);
-				passArgs[3] = String.valueOf(numBin);
-				passArgs[4] = String.valueOf(numVector);
-				passArgs[5] = String.valueOf(grid);
+				passArgs[0] = ConfUtils.getString(ConfUtils.QUERY);
+				passArgs[1] = String.valueOf(worker);
+				// to support both topk and distance join
+				if (passArgs[0].equalsIgnoreCase("topk")) {
+					passArgs[2] = String.valueOf(ConfUtils.getInteger(ConfUtils.PARAK));
+				}
+				else if (passArgs[0].equalsIgnoreCase("distance")) {
+					passArgs[2] = String.valueOf(ConfUtils.getDouble(ConfUtils.THRESHOLD));
+				}
+				passArgs[3] = String.valueOf(dimension);
+				passArgs[4] = String.valueOf(numBin);
+				passArgs[5] = String.valueOf(numVector);
 				passArgs[6] = input;
 				passArgs[7] = bin;
 				passArgs[8] = vector;
 				passArgs[9] = output;
 				passArgs[10] = String.valueOf(ConfUtils.getBoolean(ConfUtils.CACHED));
 				passArgs[11] = String.valueOf(ConfUtils.getInteger(ConfUtils.BATCH));
-				Normal.main(passArgs);
-			}
-			else if (method.equalsIgnoreCase("bspb")) {
-				passArgs = new String[11];
-				passArgs[0] = String.valueOf(worker);
-				passArgs[1] = String.valueOf(ConfUtils.getInteger(ConfUtils.PARAK));
-				passArgs[2] = String.valueOf(dimension);
-				passArgs[3] = String.valueOf(numBin);
-				passArgs[4] = String.valueOf(numVector);
-				passArgs[5] = input;
-				passArgs[6] = bin;
-				passArgs[7] = vector;
-				passArgs[8] = output;
-				passArgs[9] = String.valueOf(ConfUtils.getBoolean(ConfUtils.CACHED));
-				passArgs[10] = String.valueOf(ConfUtils.getInteger(ConfUtils.BATCH));
 				Baseline.main(passArgs);				
 			}
 			else {

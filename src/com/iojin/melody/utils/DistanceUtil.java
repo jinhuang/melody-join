@@ -110,7 +110,7 @@ public class DistanceUtil {
 	 * @return the exact EMD
 	 */
 	public static double getEmd(double[] histA, double[] histB, int dimension, double[] bins, DistanceType distType, HashMap<String, Double> costMatrix) {
-		if (FormatUtil.sum(histA) != FormatUtil.sum(histB)) {
+		if (HistUtil.sum(histA) != HistUtil.sum(histB)) {
 			//System.out.println("Infeasible: " + FormatUtil.toString(histA) + " - " + FormatUtil.toString(histB));
 			histA = HistUtil.normalizeArray(histA);
 			histB = HistUtil.normalizeArray(histB);
@@ -146,7 +146,7 @@ public class DistanceUtil {
 	}
 	
 	public static double getIndMinEmd(double[] histA, double[] histB, int dimension, double[] bins, DistanceType distType, HashMap<String, Double> costMatrix) {
-		if (FormatUtil.sum(histA) != FormatUtil.sum(histB)) {
+		if (HistUtil.sum(histA) != HistUtil.sum(histB)) {
 			//System.out.println("Infeasible: " + FormatUtil.toString(histA) + " - " + FormatUtil.toString(histB));
 			histA = HistUtil.normalizeArray(histA);
 			histB = HistUtil.normalizeArray(histB);

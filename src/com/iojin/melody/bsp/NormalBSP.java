@@ -7,13 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math.distribution.NormalDistributionImpl;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -45,7 +43,9 @@ public class NormalBSP extends
 	BSP<Text, Text, Text, Text, VectorWritable>{
 	
 	private Configuration conf;
-	private int paraK = 0; 
+	private String query;
+	private int paraK = 0;
+	private double paraThreshold = 0.0d;
 	
 	private boolean master;
 	private int assignmentId = -1;
@@ -61,6 +61,7 @@ public class NormalBSP extends
 	private int numBins;
 	private int numVectors;
 	private int numGrid;
+	private int errorLength;
 //	private int numDual;
 	private double[] bins;
 	private double[] vectors;
@@ -87,8 +88,10 @@ public class NormalBSP extends
 	private static final double SENDACK_MSG = 3.0d;
 	private static final double FINALACK_MSG = 4.0d;
 	
+	public static final String QUERY = "emd.join.query";
 	public static final String PARAK = "emd.join.para.k";
 	public static final String DIMENSION = "emd.join.para.dimension";
+	public static final String PARATHRESHOLD = "emd.join.para.threshold";
 	public static final String NUMTASK = "emd.join.num.task";
 	public static final String NUMBIN = "emd.join.num.bin";
 	public static final String NUMVEC = "emd.join.num.vector";
@@ -110,10 +113,15 @@ public class NormalBSP extends
 	public static final Log LOG = LogFactory.getLog(NormalBSP.class);
 	public static long joinTimer = 0;
 	public static long filterTimer = 0;
+	public static long constructTimer = 0;
+	public static long computeTimer = 0;
 	
 	// if cached
 	private List<DoubleVector> cache;
 	private List<String> cacheCell;
+	
+	private List<Double[][]> records;
+	private List<Double[][]> errors;
 	
 	@Override
 	public final void setup(BSPPeer<Text, Text, Text, Text, VectorWritable> peer)
@@ -121,7 +129,11 @@ public class NormalBSP extends
 		LOG.info("initiating peer " + peer.getPeerIndex());
 		master = peer.getPeerIndex() == peer.getNumPeers() / 2;
 		conf = peer.getConfiguration();
+		query = conf.get(QUERY);
 		paraK = conf.getInt(PARAK, 0);
+		if (query.equalsIgnoreCase("distance")) {
+			paraThreshold = Double.valueOf(conf.get(PARATHRESHOLD));
+		}
 		dimension = conf.getInt(DIMENSION, 0);
 		numBins = conf.getInt(NUMBIN, 0);
 		numVectors = conf.getInt(NUMVEC, 0);
@@ -144,8 +156,8 @@ public class NormalBSP extends
 		t = new double[numVectors * 2];
 		for (int i = 0; i < numVectors; i++) {
 			double[] eachProjection = FormatUtil.getNthSubArray(projectedBins, numBins, i);
-			t[i * 2] += HistUtil.getMinIn(eachProjection) - FormatUtil.avg(eachProjection);	
-			t[i * 2 + 1] += HistUtil.getMaxIn(eachProjection) - FormatUtil.avg(eachProjection);			
+			t[i * 2] += HistUtil.getMinIn(eachProjection) - HistUtil.avg(eachProjection);	
+			t[i * 2 + 1] += HistUtil.getMaxIn(eachProjection) - HistUtil.avg(eachProjection);			
 		}
 		
 		filter = new EmdFilter(dimension, bins, vectors, null);
@@ -159,6 +171,11 @@ public class NormalBSP extends
 			this.cache = new ArrayList<DoubleVector>();
 			this.cacheCell = new ArrayList<String>();
 		}
+		
+		errorLength = conf.getInt(LENGTHERROR, 0);
+		
+		records = new ArrayList<Double[][]>();
+		errors = new ArrayList<Double[][]>();
 		
 		LOG.info("starting up peer " + peer.getPeerIndex());
 	}
@@ -183,18 +200,32 @@ public class NormalBSP extends
 	@Override
 	public final void cleanup(BSPPeer<Text, Text, Text, Text, VectorWritable> peer) throws IOException {
 		if (master) {
-			if (joinedPairs.size() >= paraK) {
-				for (int i = 0; i < paraK; i++) {
+			int numPrint = 0;
+			if (query.equalsIgnoreCase("topk")) {
+				numPrint = paraK;
+			}
+			else if (query.equalsIgnoreCase("distance")) {
+				numPrint = joinedPairs.size();
+			}
+			if ((joinedPairs.size() >= paraK && query.equalsIgnoreCase("topk")) || query.equalsIgnoreCase("distance")) {
+				for (int i = 0; i < numPrint; i++) {
 					JoinedPair pair = joinedPairs.pollFirst();
-					peer.write(new Text(String.valueOf(i)), new Text(pair.toString()));
+//					peer.write(new Text(String.valueOf(i)), new Text(pair.toString()));
+					peer.write(new Text(""), new Text(pair.getRid() + " " + pair.getSid()));
 				}
 			}
 			else peer.write(new Text("Error"), new Text(String.valueOf(beforeComputationThreshold)));
 		}
 		double sec = joinTimer / 1000000000.0d;
+		peer.write(new Text(peer.getPeerName()), new Text("Guest Join: " + sec + " seconds"));
 		LOG.info("Guest join takes " + sec + " seconds");
 		sec = filterTimer / 1000000000.0d;
+		peer.write(new Text(peer.getPeerName()), new Text("Filtering Join: " + sec + " seconds"));
 		LOG.info("Filter takes " + sec + " seconds");
+		sec = constructTimer / 1000000000.0d;
+		peer.write(new Text(peer.getPeerName()), new Text("Constructing in Filtering: " + sec + " seconds"));
+		sec = computeTimer / 1000000000.0d;
+		peer.write(new Text(peer.getPeerName()), new Text("Computing in Filtering: " + sec + " seconds"));
 	}
 	
 	public static BSPJob createJob(Configuration configuration, Path in, Path out) throws IOException {
@@ -295,6 +326,9 @@ public class NormalBSP extends
 	}
 	
 	private boolean filter(String cellName, DoubleVector data, String id, double threshold, BSPPeer<Text, Text, Text, Text, VectorWritable> peer) throws IOException {
+		if (query.equalsIgnoreCase("distance")) {
+			threshold = paraThreshold;
+		}
 		long start = System.nanoTime();
 		double[] hist = data.toArray();
 		double[] weight = HistUtil.normalizeArray(FormatUtil.getSubArray(hist, 1, hist.length - 1));
@@ -302,45 +336,44 @@ public class NormalBSP extends
 		double[] record = new double[2];
 		int lengthError = conf.getInt(NormalBSP.LENGTHERROR, 0);
 		int numInterval = conf.getInt(NormalBSP.NUMINTERVAL, 0);
-		double[] error = new double[lengthError];
+		double[] error = new double[lengthError]; 
 		for (String cellId : cellIds) {
-			if (cellId.equals(id)) continue;
-			String[] eachCellIds = cellId.split(",");
-			double maxEmdLB = -Double.MAX_VALUE;
-			// emdbr
-			for (int v = 0; v < numVectors; v++) {
-				double[] eachProjection = FormatUtil.getNthSubArray(projectedBins, numBins, v);
-				eachProjection = FormatUtil.substractAvg(eachProjection);
-				NormalDistributionImpl normal = HistUtil.getNormal(weight, eachProjection);
-				TreeMap<Double, Double> cdf = HistUtil.getDiscreteCDFNormalized(weight, eachProjection);
-				List<Double> errors = HistUtil.getMinMaxError(normal, cdf, numInterval);
-				for (int j = 0; j < errors.size(); j++) {
-					error[j] = errors.get(j);
-				}
-				double fullError = HistUtil.getFullError(normal, cdf, t[v*2], t[v*2+1]);
-				error[lengthError - 1] = fullError;
-				record[0] = 1 / normal.getStandardDeviation();
-				record[1] = (-1) * normal.getMean() / normal.getStandardDeviation();
-				
-				int eachId = Integer.valueOf(eachCellIds[v]);
-				double[] bound = grids[v].getGridBound(eachId);
-				Direction direction = grids[v].locateRecordToGrid(record, bound);
-				double emdBr = grids[v].getEmdBr(record, error, bound, FormatUtil.toDoubleArray(cellError.get(cellId)[v]), direction,numInterval);
-				if (emdBr > threshold) {
-					filterTimer += System.nanoTime() - start;
-					return true;
-				}
-				maxEmdLB = maxEmdLB > emdBr ? maxEmdLB : emdBr;
-			}
-//			// rubner
+
+			boolean pruned = false;
+
+			// rubner
 			double[] rubnerValue = DistanceUtil.getRubnerValue(weight, dimension, bins);
 			double rubnerEmd = DistanceUtil.getRubnerBound(rubnerValue, FormatUtil.toDoubleArray(cellRubner.get(cellId)), dimension);
-			maxEmdLB = maxEmdLB > rubnerEmd ? maxEmdLB : rubnerEmd;
-			// dual
-//			for (int i = 0; i < numDual; i++) {
-//				
-//			}
-			if (maxEmdLB < threshold) {
+			if (rubnerEmd > threshold) {
+				filterTimer += System.nanoTime() - start;
+				pruned = true;
+			}			
+			
+			if (!pruned) {
+				// emdbr
+				String[] eachCellIds = cellId.split(",");
+				for (int v = 0; v < numVectors; v++) {
+					long constructStart = System.nanoTime();
+					record = FormatUtil.toDoubleArray(records.get(sentFlag)[v]);
+					error = FormatUtil.toDoubleArray(errors.get(sentFlag)[v]);
+					constructTimer += System.nanoTime() - constructStart;					
+					
+					long computeStart = System.nanoTime();
+					int eachId = Integer.valueOf(eachCellIds[v]);
+					double[] bound = grids[v].getGridBound(eachId);
+					Direction direction = grids[v].locateRecordToGrid(record, bound);
+					double emdBr = grids[v].getEmdBr(record, error, bound, FormatUtil.toDoubleArray(cellError.get(cellId)[v]), direction,numInterval);
+					if (emdBr > threshold) {
+						computeTimer += System.nanoTime() - computeStart;
+						pruned = true;
+						break;
+					}
+					computeTimer += System.nanoTime() - computeStart;
+				}
+			}
+			
+			// if both lower bounds failed to prune then the message shall be sent
+			if (!pruned) {
 				filterTimer += System.nanoTime() - start;
 				return false;
 			}
@@ -351,24 +384,15 @@ public class NormalBSP extends
 	
 	
 	private void sendFinalMessage(BSPPeer<Text, Text, Text, Text, VectorWritable> peer) throws IOException {
-//		if (!master) {
 			for(JoinedPair pair : joinedPairs) {
 				double[] each = BSPUtil.toDoubleArray(pair);
 				DoubleVector finalVector = new DenseDoubleVector(getFinalVector(each));
-//				String theMaster = peer.getPeerName(peer.getNumPeers() / 2);
-				for (String other : peer.getAllPeerNames()) {
-					if (!other.equals(peer.getPeerName())) {
-						peer.send(other, new VectorWritable(finalVector));
-					}
-				}
-				
+				String theMaster = peer.getPeerName(peer.getNumPeers() / 2);
+				peer.send(theMaster, new VectorWritable(finalVector));
 			}
-//			peer.write(new Text("done!"), new Text(String.valueOf(beforeComputationThreshold)));
-//			seenFinal++;
+			
 			for (String other : peer.getAllPeerNames()) {
-//				if (!other.equals(peer.getPeerName())) {
-					peer.send(other, new VectorWritable(new DenseDoubleVector(getFinalAckVector())));
-//				}
+				peer.send(other, new VectorWritable(new DenseDoubleVector(getFinalAckVector())));
 			}			
 			LOG.info("peer " + peer.getPeerIndex() + " sent final message with seenFinal " + seenFinal);
 	}
@@ -405,7 +429,13 @@ public class NormalBSP extends
 	}
 	
 	private void join(List<DoubleVector> histograms) {
-		double threshold = getLocalThreshold();
+		double threshold = 0.0d;
+		if (query.equalsIgnoreCase("topk")) {
+			threshold = getLocalThreshold();
+		}
+		else if (query.equalsIgnoreCase("distance")) {
+			threshold = paraThreshold;
+		}
 		for (int i = 0; i < histograms.size(); i++) {
 			double[] recordA = histograms.get(i).toArray();
 			long rid = (long) recordA[0];
@@ -417,13 +447,15 @@ public class NormalBSP extends
 				
 				if (!filter.filter(weightA, weightB, threshold)) {
 					double emd = DistanceUtil.getEmdLTwo(weightA, weightB, dimension, bins);
-					if (emd < threshold) {
+					if (emd < threshold || (query.equalsIgnoreCase("distance") && (emd - threshold) <= DistanceUtil.EPSILON )) {
 						JoinedPair pair = new JoinedPair(rid, sid, emd);
 						joinedPairs.add(pair);
-						if (joinedPairs.size() > paraK) {
-							joinedPairs.pollLast();
+						if (query.equalsIgnoreCase("topk")) {
+							if (joinedPairs.size() > paraK) {
+								joinedPairs.pollLast();
+							}
+							threshold = getLocalThreshold();
 						}
-						threshold = getLocalThreshold();
 					}
 				}
 			}
@@ -431,8 +463,13 @@ public class NormalBSP extends
 	}
 	
 	private void join(List<DoubleVector> nat, List<DoubleVector> gus, double t, BSPPeer<Text, Text, Text, Text, VectorWritable> peer) throws IOException {
-	
-		double threshold = getLocalThreshold(t);
+		double threshold = 0.0d;
+		if (query.equalsIgnoreCase("topk")) {
+			threshold = getLocalThreshold(t);
+		}
+		else if (query.equalsIgnoreCase("distance")) {
+			threshold = paraThreshold;
+		}
 		for (int i = 0; i < nat.size(); i++) {
 			double[] recordA = nat.get(i).toArray();
 			long rid = (long) recordA[0];
@@ -446,13 +483,15 @@ public class NormalBSP extends
 					if (!filter.filter(weightA, weightB, threshold)) {
 						double emd = DistanceUtil.getEmdLTwo(weightA, weightB, dimension, bins);
 //						peer.write(new Text("join "), new Text(rid + " " + sid + " : " + emd));
-						if (emd < threshold) {
+						if (emd < threshold|| (query.equalsIgnoreCase("distance") && (emd - threshold) <= DistanceUtil.EPSILON )) {
 							JoinedPair pair = new JoinedPair(rid, sid, emd);
 							joinedPairs.add(pair);
-							if (joinedPairs.size() > paraK) {
-								joinedPairs.pollLast();
+							if (query.equalsIgnoreCase("topk")) {
+								if (joinedPairs.size() > paraK) {
+									joinedPairs.pollLast();
+								}
+								threshold = getLocalThreshold(t);
 							}
-							threshold = getLocalThreshold(t);
 						}
 					}
 				}
@@ -477,6 +516,19 @@ public class NormalBSP extends
 				if (cacheCell != null) {
 					cacheCell.add(split[1]);
 				}
+				String[] eachRecordAndError = val.toString().split(",");
+				Double[][] records = new Double[numVectors][2];
+				Double[][] errors = new Double[numVectors][errorLength];
+				for(int i = 0; i < numVectors; i++) {
+					double[] recordAndError = FormatUtil.toDoubleArray(eachRecordAndError[i]);
+					records[i][0] = recordAndError[0];
+					records[i][1] = recordAndError[1];
+					for (int j = 0; j < errorLength; j++) {
+						errors[i][j] = recordAndError[2 + j];
+					}
+				}
+				this.records.add(records);
+				this.errors.add(errors);
 			}
 			numRecord = histograms.size();
 			return histograms;
@@ -547,14 +599,16 @@ public class NormalBSP extends
 	}
 	
 	private void pruneLocalPairs(double threshold) {
-		int toRemove = 0;
-		for (JoinedPair pair : joinedPairs) {
-			if (pair.getDist() > threshold) {
-				toRemove++;
+		if (query.equalsIgnoreCase("topk")) {
+			int toRemove = 0;
+			for (JoinedPair pair : joinedPairs) {
+				if (pair.getDist() > threshold) {
+					toRemove++;
+				}
 			}
-		}
-		for (int i = 0; i < toRemove; i++) {
-			joinedPairs.pollLast();
+			for (int i = 0; i < toRemove; i++) {
+				joinedPairs.pollLast();
+			}
 		}
 	}
 	
