@@ -27,9 +27,18 @@ All files should be accessible via HDFS paths.
 
 How To Run Join
 ----
-The implementation uses Apache Maven for dependency management. You can run `mvn clean assembly:single` to generate the jar file. Additionally, make sure your environment meets the following requirement
+The implementation uses Apache Maven for dependency management. Additionally, make sure your environment meets the following requirement
 - Apache Hadoop 2.0+
 - Apache Hama 0.7.0-SNAPSHOT
+
+First install the following dependencies into your maven repository by commands:
+
+    mvn install:install-file -DgroupId=org.apache.hama -DartifactId=hama-ml -Dpackaging=jar -Dversion=0.7.0-SNAPSHOT -Dfile=lib/hama-ml-0.7.0-SNAPSHOT.jar
+    mvn install:install-file -DgroupId=org.apache.hama -DartifactId=hama-core -Dpackaging=jar -Dversion=0.7.0-SNAPSHOT -Dfile=lib/hama-core-0.7.0-SNAPSHOT.jar
+    mvn install:install-file -DgroupId=org.apache.hama -DartifactId=hama-commons -Dpackaging=jar -Dversion=0.7.0-SNAPSHOT -Dfile=lib/hama-commons-0.7.0-SNAPSHOT.jar
+    mvn install:install-file -DgroupId=com.semanticmetadata -DartifactId=lire -Dpackaging=jar -Dversion=0.9.4 -Dfile=lib/lire-0.9.4.jar
+
+Then you can run `mvn clean assembly:single` to generate the jar file.
 
 The following dependencies should be in the `/lib` directory of the Hadoop and Hama:
 - commons-math3-3.1.1
