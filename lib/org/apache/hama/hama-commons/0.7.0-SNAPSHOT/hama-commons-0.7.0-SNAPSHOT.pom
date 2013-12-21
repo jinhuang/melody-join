@@ -21,6 +21,7 @@
     <groupId>org.apache.hama</groupId>
     <artifactId>hama-parent</artifactId>
     <version>0.7.0-SNAPSHOT</version>
+    <relativePath>../../hama-parent/0.7.0-SNAPSHOT/hama-parent-0.7.0-SNAPSHOT.pom</relativePath>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
