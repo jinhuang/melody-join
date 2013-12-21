@@ -46,6 +46,8 @@ The algorithms can be run using the command
     hadoop jar <jar file path> com.iojin.melody.Join <conf.properties>
     hama jar <jar file path> com.iojin.melody.Join <conf.properties>
 
+The Hama 0.7.0-SNAPSHOT binary is included under the directory `hama` for convenience.
+
 How To Run Generator
 ----
 The implementation includes a data generator which extract typical content-based features from images files and convert their format to fit the requirement of the join program. The configurations are also included in the `melody-conf.properties` file. It has three running modes, local file system, HDFS file system, and MapReduce (unavailable and in progress). The command for the local and HDFS modes is 
