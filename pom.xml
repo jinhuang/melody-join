@@ -117,6 +117,16 @@
 		<groupId>com.semanticmetadata</groupId>
 		<artifactId>lire</artifactId>
 		<version>0.9.4</version>
-	</dependency>                                         
+	</dependency>  
+	<dependency>
+		<groupId>hipi</groupId>
+		<artifactId>hipi</artifactId>
+		<version>0.0.1</version>
+	</dependency> 
+	 <dependency>
+      <groupId>com.drewnoakes</groupId>
+      <artifactId>metadata-extractor</artifactId>
+      <version>2.4.0-beta-1</version>
+    </dependency>                                      
   </dependencies>
 </project>

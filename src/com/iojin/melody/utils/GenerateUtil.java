@@ -1,9 +1,13 @@
 package com.iojin.melody.utils;
 
+import hipi.image.FloatImage;
+import hipi.image.ImageHeader;
+import hipi.image.io.JPEGImageUtil;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,6 +17,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.lucene.document.Document;
+//import org.apache.lucene.util.IOUtils;
 
 import net.semanticmetadata.lire.DocumentBuilder;
 import net.semanticmetadata.lire.DocumentBuilderFactory;
@@ -54,15 +59,23 @@ public class GenerateUtil {
 	
 	private static final int FEATURE_USED = 0;
 	
+	private static final String TEMP_FILE = "temp.jpeg";
+	
 	public static double[] processImage(String imagePath, boolean local, int imageGrid, DocumentBuilder builder, 
 			String featureName, FileSystem fs, double[] featureOutput, Map<String, LireFeature> lireFeatures) throws IOException, DecoderException {
 		String imgName = getImageName(imagePath, local);
 		BufferedImage eachImage = local ? ImageIO.read(new File(imagePath)) : ImageIO.read(fs.open(new Path(imagePath)));
+
+		return processImage(eachImage, imgName, imageGrid, builder, featureName, featureOutput, lireFeatures);
+	}
+	
+	public static double[] processImage(BufferedImage img, String imgName, int imageGrid, DocumentBuilder builder, 
+			String featureName, double[] featureOutput, Map<String, LireFeature> lireFeatures) throws IOException, DecoderException {
 		
 		for (int i = 0; i < imageGrid; i++) {
 			for (int j = 0; j < imageGrid; j++) {
 				String subImgName = imgName + i + "," + j;
-				Document document = builder.createDocument(getSubImageByRowAndColumn(eachImage, i, j, imageGrid), subImgName);
+				Document document = builder.createDocument(getSubImageByRowAndColumn(img, i, j, imageGrid), subImgName);
 				featureOutput[i * imageGrid + j] = getFeatures(document, featureName, lireFeatures)[FEATURE_USED];
 			}
 		}
@@ -94,8 +107,6 @@ public class GenerateUtil {
 	}
 	
 	public static void prepareFeaturesAndBuilders(Set<String> features, Map<String, DocumentBuilder> builders, Map<String, LireFeature> lireFeatures) {
-		builders = new HashMap<String, DocumentBuilder>();
-		lireFeatures = new HashMap<String, LireFeature>();
 		if (features.contains(ACC)) {
 			builders.put(ACC, DocumentBuilderFactory.getAutoColorCorrelogramDocumentBuilder());
 			lireFeatures.put(ACC, new AutoColorCorrelogram());
@@ -160,5 +171,14 @@ public class GenerateUtil {
 			builders.put(TAMURA, DocumentBuilderFactory.getTamuraDocumentBuilder());
 			lireFeatures.put(TAMURA, new Tamura());
 		}
+	}
+	
+	public static BufferedImage JPEGFloatImageToBufferedImage(FloatImage image, ImageHeader header) throws IOException {
+		FileOutputStream out = new FileOutputStream(TEMP_FILE);
+		JPEGImageUtil.getInstance().encodeImage(image, header, out);
+		out.flush();
+		out.close();
+		BufferedImage img = ImageIO.read(new File(TEMP_FILE));
+		return img;
 	}
 }

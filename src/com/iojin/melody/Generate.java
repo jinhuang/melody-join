@@ -40,21 +40,21 @@ public class Generate {
 	
 	private static final int DIMENSION = 2;
 	
-	private static final String META_ID = "0_id";
-	private static final String META_BIN = "0_bins";
+	private static final String META_ID = "id";
+	private static final String META_BIN = "bins";
 	
 	public static void main(String[] args) throws Exception {
 		
-		if (args.length != 1) {
+		if (args.length != 2) {
 			System.out.println("USAGE: <conf.properties path>");
 			return;
 		}
-		if (!new File(args[0]).exists()) {
+		if (!new File(args[1]).exists()) {
 			System.out.println("cannot find the specified .properties file");
 			return;
 		}
 		
-		ConfUtils.loadConf(args[0]);
+		ConfUtils.loadConf(args[1]);
 		
 		local = ConfUtils.getString(ConfUtils.GENERATEMODE).equalsIgnoreCase("local");
 		inputDir = ConfUtils.getString(ConfUtils.GENERATEINPUT);
@@ -62,6 +62,8 @@ public class Generate {
 		featureNames = ConfUtils.getStringSet(ConfUtils.GENERATEFEATURE);
 		imageGrid = ConfUtils.getInteger(ConfUtils.GENERATEGRID);
 		featureOutput = new double[imageGrid * imageGrid];
+		builders = new HashMap<String, DocumentBuilder>();
+		lireFeatures = new HashMap<String, LireFeature>();
 		GenerateUtil.prepareFeaturesAndBuilders(featureNames, builders, lireFeatures);
 		
 		prepareDirectory();

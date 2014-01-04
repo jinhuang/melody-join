@@ -13,9 +13,11 @@ import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileStatus;
@@ -27,6 +29,7 @@ public class FileUtil {
 //	private static final String mathDependency = "s3n://emdjoin/commons-math3-3.1.1.jar";
 	
 	private static String mathDependency = "/emdjoin/dependency/commons-math3-3.1.1.jar";
+	private static BufferedReader reader;
 	
 	public static void setMathDependency(String path) {
 		mathDependency = path;
@@ -70,7 +73,17 @@ public class FileUtil {
 			writer.write(id + " => " + map.get(id) + "\n");
 		}
 		writer.close();
-	}	
+	}
+	
+//	public static void writeHashToHDFS(String out, String hash, String file, FileSystem fs) throws IOException {
+//		Path path = new Path(out);
+//		if (!fs.exists(path)) {
+//			fs.create(path, true);
+//		}
+//		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.append(path)));
+//		writer.write(hash + " => " + file + "\n");
+//		writer.close();
+//	}	
 	
 	public static double [] getData(String addr,int size){
 		double [] datas = new double[size];
@@ -159,6 +172,26 @@ public class FileUtil {
 			array[i] = list.get(i);
 		}
 		return array;
+	}
+	
+	public static Map<String, Long> getHashFromDistributedCache(Configuration conf, String name) throws IOException {
+		Path[] localFiles = DistributedCache.getLocalCacheFiles(conf);
+		HashMap<String, Long> hash = new HashMap<String, Long>();
+		for (Path path : localFiles) {
+			if (path.toString().indexOf(name) > -1) {
+				File file = new File(path.toString());
+				if (!file.isDirectory()) {
+					reader = new BufferedReader(new FileReader(file));
+					String line = reader.readLine();
+					while(line != null) {
+						String[] ary = line.split("\\s");
+						hash.put(StringUtils.trim(ary[0]), Long.valueOf(StringUtils.trim(ary[1])));
+						line = reader.readLine();
+					}
+				}
+			}
+		}
+		return hash;
 	}
 	
 	public static void addOutputToDistributedCache(Configuration conf, String outputPath, String name) throws IOException, URISyntaxException {
