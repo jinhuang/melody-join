@@ -1,0 +1,7 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Mon Jan 06 09:41:39 EST 2014
+servlet-3.0-SNAPSHOT.pom>=
+servlet-3.0-SNAPSHOT-tests.jar>=
+servlet-3.0-SNAPSHOT-sources.jar>=
+servlet-3.0-SNAPSHOT.jar>=
+servlet-3.0-SNAPSHOT-test-sources.jar>=

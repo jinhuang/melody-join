@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Mon Jan 06 09:41:31 EST 2014
+common-image-3.0-SNAPSHOT.pom>=
+common-image-3.0-SNAPSHOT-tests.jar>=
+common-image-3.0-SNAPSHOT.jar>=

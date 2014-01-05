@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.twelvemonkeys.imageio</groupId>
+  <artifactId>imageio-pdf</artifactId>
+  <versioning>
+    <versions>
+      <version>3.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20140105224157</lastUpdated>
+  </versioning>
+</metadata>

@@ -1,0 +1,5 @@
+#NOTE: This is an internal implementation file, its format can be changed without prior notice.
+#Mon Jan 06 09:42:51 EST 2014
+imageio-reference-3.0-SNAPSHOT.jar>=
+imageio-reference-3.0-SNAPSHOT.pom>=
+imageio-reference-3.0-SNAPSHOT-tests.jar>=

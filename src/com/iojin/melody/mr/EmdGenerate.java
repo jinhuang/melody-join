@@ -35,7 +35,7 @@ public class EmdGenerate extends Configured implements Tool{
 	private static final String TEMP = "temp";
 	public static final String HASH = "hash";
 	private static String hibPath;
-	private static String histPath;
+	private static String tempPath;
 	private static String hashPath;
 	private static String imagePath;
 	
@@ -45,11 +45,10 @@ public class EmdGenerate extends Configured implements Tool{
 
 		imagePath = conf.get(ConfUtils.GENERATEINPUT);
 		hibPath = imagePath + "/" + HIB;
-		histPath = conf.get(ConfUtils.GENERATEOUTPUT) + "/" + HIST + "/" + TEMP;
+		tempPath = conf.get(ConfUtils.GENERATEOUTPUT) + "/" + HIST + "/" + TEMP;
 		hashPath = conf.get(ConfUtils.GENERATEOUTPUT) + "/" + HASH; 
 		
 		generateHIB(conf);
-		
 		
 		Job hashJob = new Job(conf);
 		hashJob.setJarByClass(EmdGenerate.class);
@@ -73,9 +72,13 @@ public class EmdGenerate extends Configured implements Tool{
 		job.setOutputValueClass(Text.class);
 		
 		FileInputFormat.addInputPaths(job, hibPath);
-		FileOutputFormat.setOutputPath(job, new Path(histPath));
+		FileOutputFormat.setOutputPath(job, new Path(tempPath));
 		job.waitForCompletion(true);
-		FileUtil.deleteIfExistOnHDFS(conf, histPath);
+		
+		// cleanup
+		FileUtil.deleteIfExistOnHDFS(conf, tempPath);
+		FileUtil.deleteIfExistOnHDFS(conf, hibPath);
+		
 		return 0;
 	}
 	

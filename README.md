@@ -31,7 +31,7 @@ The implementation uses Apache Maven for dependency management. Additionally, ma
 - Apache Hadoop 2.0+
 - Apache Hama 0.7.0-SNAPSHOT
 
-Then you can run `mvn clean assembly:single` to generate the jar file.
+Then you can run `mvn clean package assembly:single` to generate the jar file.
 
 The following dependencies should be in the `/lib` directory of the Hadoop and Hama:
 - commons-math3-3.1.1
@@ -57,6 +57,16 @@ The implementation includes a data generator which extract typical content-based
 And the command for the MapReduce mode is 
     
     hadoop jar <jar file path> com.iojin.melody.Generate <conf.properties>
+
+The Generator currently supports the following modes
+
+- [x] local: where the image files are read from local disks and processed on the local machine
+- [x] hdfs: where the image files are read from hdfs and processed on the local machine
+- [x] mr: where the image files are read from hdfs and processed via MapReduce jobs
+
+The Generator will support the following mode shortly
+
+- [] crawlmr: where a file listing the image http url is read from hdfs, the image files are crawled and processed via MapReduce jobs
 
 
 Example Datasets

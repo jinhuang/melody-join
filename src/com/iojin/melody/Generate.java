@@ -95,16 +95,19 @@ public class Generate {
 	
 	private static void prepareDirectory() throws IOException, ConfigurationException {
 		if (local) {
+			// check whether the input directory exists
 			File input = new File(inputDir);
 			if (!input.exists() || !input.isDirectory()) {
 				System.out.println(inputDir + " is not a directory");
 				return;
 			}
+			// delete the output directory and create s new one
 			File output = new File(outputDir);
 			if (output.exists()) {
 				output.delete();
 			}
 			output.mkdirs();
+			// get all image paths
 			images = FileUtils.getAllImages(input, true);
 		}
 		else {
@@ -121,7 +124,7 @@ public class Generate {
 			FileUtil.getAllImagesOnHDFS(inPath, fs, images);
 		}
 		
-		// write out id - file mapping metadata
+		// write out id - image path mapping metadata
 		idMap = new HashMap<Long, String>();
 		Long id = 0L;
 		for (String each : images) {

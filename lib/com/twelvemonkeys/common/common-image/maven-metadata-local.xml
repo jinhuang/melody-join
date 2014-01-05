@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.twelvemonkeys.common</groupId>
+  <artifactId>common-image</artifactId>
+  <versioning>
+    <versions>
+      <version>3.0-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20140105224131</lastUpdated>
+  </versioning>
+</metadata>
