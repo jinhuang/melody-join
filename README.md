@@ -85,13 +85,4 @@ Supported Features
 - `oh` Opponent Histogram [Koen E. A. van de Sande, Theo Gevers, and Cees G. M. Snoek, "Evaluating Color Descriptors for Object and Scene Recognition", PAMI, 2010] (http://nichol.as/papers/Sande/Evaluation%20of%20Color%20Descriptors%20for%20Object%20and%20Scene.pdf)
 - `phog` PHOG: Spatial Pyramid Kernel [Ann Bosch, Andrew Zisserman, and Xavier Munoz, "Representing shape with a spatial pyramid kernel", CVPR, 2007] (http://eprints.pascal-network.org/archive/00003009/01/bosch07.pdf)
 - `sc` Scalable Color [Jens-Rainer Ohm, Leszek Cieplinski, Heon Jun Kim, Santhana Krishnamachari, B. S. Manjunath, Dean S. Messing, and Akio Yamada, "The MPEG-7 Color Descriptors"] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.7760&rep=rep1&type=pdf)
-- `tamura' Tamura feature [Hideyuki Tamura, Shunji Mori, and Takashi Yamawaki, "Textural Features Corresponding to Visual Perception", TSMC, 1978] (http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=4309999&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D4309999)
-
-
-Example Datasets
-----
-[Corel] (http://archive.ics.uci.edu/ml/datasets/Corel+Image+Features)
-
-[Mirflickr] (http://medialab.liacs.nl/mirflickr/mirflickr1m/)
-
-Note that you need to convert the format to the one specified above before feeding them to the program.
+- `tamura` Tamura feature [Hideyuki Tamura, Shunji Mori, and Takashi Yamawaki, "Textural Features Corresponding to Visual Perception", TSMC, 1978] (http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=4309999&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D4309999)
