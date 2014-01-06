@@ -12,24 +12,7 @@ Two types of joins are supported:
 
 The [MRSimJoin] (http://www.public.asu.edu/~ynsilva/SimCloud/publications.html) implementation released by the original authors is modified to generically process arbitrary dimensional datasets. That code is under the package `mrsim`.
 
-Additionally, it provides a **data generator** which is capable to extract 16 types of content-based features from image files. The generated features then can be fed to the join algorithm to process. The feature extraction implementation is built upon [Lire] (http://www.semanticmetadata.net/lire/). The list of the 16 types of features is as follows:
-
-- `acc` Auto Color Correlogram [Jing Huang, S Ravi Kumar, Mandar Mitra, Wei-Jing Zhu, and Ramin Zabih, "Image Indexing Using Color Correlograms", CVPR, 1997] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.83.9300&rep=rep1&type=pdf) 
-- `cedd` CEDD: Color and Edge Directivity Descriptor [Savvas A. Chatzichristofis and Yiannis Boutalis, "CEDD: Color and Edge Directivity Descriptor: A Compact Descriptor for Image Indexing and Retrieval", Computer Vision Systems, 2008] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.231.4&rep=rep1&type=pdf)
-- `ch` Simple Color Histogram [Color Histogram Wikipedia] (http://en.wikipedia.org/wiki/Color_histogram)
-- `cl` Color Layout [Jens-Rainer Ohm, Leszek Cieplinski, Heon Jun Kim, Santhana Krishnamachari, B. S. Manjunath, Dean S. Messing, and Akio Yamada, "The MPEG-7 Color Descriptors"] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.7760&rep=rep1&type=pdf)
-- `eh` Edge Histogram [Chee Sun Won, Dong Kwon Park, and Soo-Jun Park, "Efficient Use of MPEG-7 Edge Histogram Descriptor", ETRI Journal, 2002] (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&cad=rja&ved=0CEwQFjAD&url=http%3A%2F%2Fetrij.etri.re.kr%2FCyber%2Fservlet%2FGetFile%3Ffileid%3DSPF-1041924741673&ei=GfTJUpODOYbriAep-IC4DA&usg=AFQjCNHjw4Wc3MUGiKY2GnwQz7A3C1POeA&sig2=llHEVUEWr4BrlcQZ1gwTUg&bvm=bv.58187178,d.aGc)
-- `fcth` FCTH: Fuzzy Color and Texture Histogram [Savvas A. Chatzichristofis and Yiannis S. Boutalis, "FCTH: Fuzzy Color and Texture Histogram - A Low Level Feature for Accurate Image Retrieval", WIAMIS, 2008] (http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=4556917&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D4556917)
-- `gabor` Gabor Texture [Dengshen Zhang, Aylwin Wong, Maria Indrawan, and Guojun Lu, "Content-based Image Retrieval Using Gabor Texture Features", PAMI, 2000] (http://pdf.aminer.org/000/318/796/rotation_invariant_texture_features_using_rotated_complex_wavelet_for_content.pdf)
-- `hcedd` Hashing CEDD 
-- `jcd` Joining CEDD and FCTH Histogram
-- `jh` Joint Histogram [Greg Pass and Ramin Zabih, "Comparing Images Using Joint Histograms", Multimedia System, 1999] (http://www.cs.cornell.edu/~rdz/papers/pz-jms99.pdf)
-- `jch` Jpeg Coefficient Histogram [Junfeng He, Zhuochen Lin, Lifeng Wang, and Xiaoou Tang, "Detecting Doctored JPEG Images Via DCT Coefficient Analysis", ECCV, 2006] (http://research.microsoft.com/pubs/69411/doctorimage_eccv06.pdf)
-- `ll` Luminance Layout [Luminance Histogram] (http://marswiki.jrc.ec.europa.eu/wikicap/index.php/Luminance_Histogram)
-- `oh` Opponent Histogram [Koen E. A. van de Sande, Theo Gevers, and Cees G. M. Snoek, "Evaluating Color Descriptors for Object and Scene Recognition", PAMI, 2010] (http://nichol.as/papers/Sande/Evaluation%20of%20Color%20Descriptors%20for%20Object%20and%20Scene.pdf)
-- `phog` PHOG: Spatial Pyramid Kernel [Ann Bosch, Andrew Zisserman, and Xavier Munoz, "Representing shape with a spatial pyramid kernel", CVPR, 2007] (http://eprints.pascal-network.org/archive/00003009/01/bosch07.pdf)
-- `sc` Scalable Color [Jens-Rainer Ohm, Leszek Cieplinski, Heon Jun Kim, Santhana Krishnamachari, B. S. Manjunath, Dean S. Messing, and Akio Yamada, "The MPEG-7 Color Descriptors"] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.7760&rep=rep1&type=pdf)
-- `tamura' Tamura feature [Hideyuki Tamura, Shunji Mori, and Takashi Yamawaki, "Textural Features Corresponding to Visual Perception", TSMC, 1978] (http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=4309999&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D4309999)
+Additionally, it provides a **data generator** which is capable to extract 16 types of content-based features from image files. The generated features then can be fed to the join algorithm to process. The feature extraction implementation is built upon [Lire] (http://www.semanticmetadata.net/lire/). The supported features are listed in [Supported Features] (https://github.com/jinhuang/melody-join#supported-features).
 
 Input Datset Format
 ----
@@ -84,6 +67,25 @@ The Generator currently supports the following modes
 The Generator will support the following mode shortly
 
 - [] crawlmr: where a file listing the image http url is read from hdfs, the image files are crawled and processed via MapReduce jobs
+
+Supported Features
+----
+- `acc` Auto Color Correlogram [Jing Huang, S Ravi Kumar, Mandar Mitra, Wei-Jing Zhu, and Ramin Zabih, "Image Indexing Using Color Correlograms", CVPR, 1997] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.83.9300&rep=rep1&type=pdf) 
+- `cedd` CEDD: Color and Edge Directivity Descriptor [Savvas A. Chatzichristofis and Yiannis Boutalis, "CEDD: Color and Edge Directivity Descriptor: A Compact Descriptor for Image Indexing and Retrieval", Computer Vision Systems, 2008] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.231.4&rep=rep1&type=pdf)
+- `ch` Simple Color Histogram [Color Histogram Wikipedia] (http://en.wikipedia.org/wiki/Color_histogram)
+- `cl` Color Layout [Jens-Rainer Ohm, Leszek Cieplinski, Heon Jun Kim, Santhana Krishnamachari, B. S. Manjunath, Dean S. Messing, and Akio Yamada, "The MPEG-7 Color Descriptors"] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.7760&rep=rep1&type=pdf)
+- `eh` Edge Histogram [Chee Sun Won, Dong Kwon Park, and Soo-Jun Park, "Efficient Use of MPEG-7 Edge Histogram Descriptor", ETRI Journal, 2002] (https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=4&cad=rja&ved=0CEwQFjAD&url=http%3A%2F%2Fetrij.etri.re.kr%2FCyber%2Fservlet%2FGetFile%3Ffileid%3DSPF-1041924741673&ei=GfTJUpODOYbriAep-IC4DA&usg=AFQjCNHjw4Wc3MUGiKY2GnwQz7A3C1POeA&sig2=llHEVUEWr4BrlcQZ1gwTUg&bvm=bv.58187178,d.aGc)
+- `fcth` FCTH: Fuzzy Color and Texture Histogram [Savvas A. Chatzichristofis and Yiannis S. Boutalis, "FCTH: Fuzzy Color and Texture Histogram - A Low Level Feature for Accurate Image Retrieval", WIAMIS, 2008] (http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=4556917&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D4556917)
+- `gabor` Gabor Texture [Dengshen Zhang, Aylwin Wong, Maria Indrawan, and Guojun Lu, "Content-based Image Retrieval Using Gabor Texture Features", PAMI, 2000] (http://pdf.aminer.org/000/318/796/rotation_invariant_texture_features_using_rotated_complex_wavelet_for_content.pdf)
+- `hcedd` Hashing CEDD 
+- `jcd` Joining CEDD and FCTH Histogram
+- `jh` Joint Histogram [Greg Pass and Ramin Zabih, "Comparing Images Using Joint Histograms", Multimedia System, 1999] (http://www.cs.cornell.edu/~rdz/papers/pz-jms99.pdf)
+- `jch` Jpeg Coefficient Histogram [Junfeng He, Zhuochen Lin, Lifeng Wang, and Xiaoou Tang, "Detecting Doctored JPEG Images Via DCT Coefficient Analysis", ECCV, 2006] (http://research.microsoft.com/pubs/69411/doctorimage_eccv06.pdf)
+- `ll` Luminance Layout [Luminance Histogram] (http://marswiki.jrc.ec.europa.eu/wikicap/index.php/Luminance_Histogram)
+- `oh` Opponent Histogram [Koen E. A. van de Sande, Theo Gevers, and Cees G. M. Snoek, "Evaluating Color Descriptors for Object and Scene Recognition", PAMI, 2010] (http://nichol.as/papers/Sande/Evaluation%20of%20Color%20Descriptors%20for%20Object%20and%20Scene.pdf)
+- `phog` PHOG: Spatial Pyramid Kernel [Ann Bosch, Andrew Zisserman, and Xavier Munoz, "Representing shape with a spatial pyramid kernel", CVPR, 2007] (http://eprints.pascal-network.org/archive/00003009/01/bosch07.pdf)
+- `sc` Scalable Color [Jens-Rainer Ohm, Leszek Cieplinski, Heon Jun Kim, Santhana Krishnamachari, B. S. Manjunath, Dean S. Messing, and Akio Yamada, "The MPEG-7 Color Descriptors"] (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.148.7760&rep=rep1&type=pdf)
+- `tamura' Tamura feature [Hideyuki Tamura, Shunji Mori, and Takashi Yamawaki, "Textural Features Corresponding to Visual Perception", TSMC, 1978] (http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=4309999&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D4309999)
 
 
 Example Datasets
