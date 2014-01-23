@@ -20,3 +20,4 @@ public class HashMapper extends Mapper<ImageHeader, FloatImage, Text, Text> {
 		id++;
 	}
 }
+ 

@@ -32,6 +32,7 @@ public class GenerateMapper extends Mapper<ImageHeader, FloatImage, Text, Text> 
 	private Map<String, DocumentBuilder> builders;
 	private Map<String, LireFeature> lireFeatures;
 	private static int imageGrid;
+	private static int featureUsed;
 	private static double[] featureOutput;
 	private Map<String, Long> hashIds;
 	
@@ -39,6 +40,7 @@ public class GenerateMapper extends Mapper<ImageHeader, FloatImage, Text, Text> 
 	protected void setup(Context context) throws IOException {
 		Configuration conf = context.getConfiguration();
 		imageGrid = conf.getInt(ConfUtils.GENERATEGRID, 4);
+		featureUsed = conf.getInt(ConfUtils.GENERATEFEATUREVALUE, 0);
 		featureOutput = new double[imageGrid * imageGrid];
 		featureNames = new HashSet<String>();
 		String[] array = conf.get(ConfUtils.GENERATEFEATURE).split("/");
@@ -62,7 +64,7 @@ public class GenerateMapper extends Mapper<ImageHeader, FloatImage, Text, Text> 
 		for (String featureName : builders.keySet()) {
 			DocumentBuilder builder = builders.get(featureName);
 			try {
-				featureOutput = GenerateUtil.processImage(img, "",imageGrid, builder, featureName, featureOutput, lireFeatures);
+				featureOutput = GenerateUtil.processImage(img, "",imageGrid, builder, featureName, featureOutput, lireFeatures, featureUsed);
 				context.write(new Text(featureName), new Text(id + " " + FormatUtil.toTextString(featureOutput)));
 			} catch (DecoderException e) {
 				e.printStackTrace();

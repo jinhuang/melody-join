@@ -32,13 +32,26 @@ public class ConfUtils {
 	public static final String RATIO = "melody.sample.ratio";
 	
 	public static final String GENERATEMODE = "generate.mode";
+	public static final String GENERATEMRINPUT = "generate.mr.input";
 	public static final String GENERATEHDFS = "generate.hdfs.name";
 	public static final String GENERATEINPUT = "generate.input.image.dir";
 	public static final String GENERATEOUTPUT = "generate.output.hist.dir";
 	public static final String GENERATEFEATURE = "generate.enabled.features";
 	public static final String GENERATEGRID = "generate.grid.granularity";
+	public static final String GENERATEFEATUREVALUE = "generate.feature.value";
+	public static final String GENERATECRAWLFREQ = "generate.crawl.freq";
 	
-	private static final String SEPARATOR = "/";
+	public static final String GENERATELOCAL = "local";
+	public static final String GENERATEMR = "mr";
+	public static final String GENERATEMRLOCAL = "local";
+	public static final String GENERATEMRHDFS = "hdfs";
+	public static final String GENERATEMRHTTP = "http";
+	
+	public static final String GENERATEPERTASK = "generate.pertask";
+	
+	public static final String SEPARATOR = "/";
+	
+	public static final String ID_HASH = "=>";
 	
 	private static Configuration instance;
 	

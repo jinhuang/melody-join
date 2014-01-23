@@ -26,6 +26,7 @@ import com.iojin.melody.utils.GenerateUtil;
 
 public class Generate {
 	private static boolean local;
+	
 	private static String inputDir;
 	private static String outputDir;
 	private static Set<String> featureNames;
@@ -36,12 +37,19 @@ public class Generate {
 	private static Configuration conf;
 	private static FileSystem fs;
 	private static int imageGrid;
+	private static int featureUsed;
 	private static double[] featureOutput;
 	
 	private static final int DIMENSION = 2;
 	
-	private static final String META_ID = "id";
+	public static final String META_ID = "id";
 	private static final String META_BIN = "bins";
+	
+	private static final String LOCAL = "local";
+	private static final String MR = "mr";
+	public static final String CRAWLMR = "crawlmr";
+	
+	private static final String HDFS_NAME = "fs.defaultFS";
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -54,13 +62,31 @@ public class Generate {
 			return;
 		}
 		
+		int mb = 1024*1024;
+		Runtime runtime = Runtime.getRuntime();
+		
+        //Print used memory
+        System.out.println("Used Memory:"
+            + (runtime.totalMemory() - runtime.freeMemory()) / mb);
+ 
+        //Print free memory
+        System.out.println("Free Memory:"
+            + runtime.freeMemory() / mb);
+         
+        //Print total available memory
+        System.out.println("Total Memory:" + runtime.totalMemory() / mb);
+ 
+        //Print Maximum available memory
+        System.out.println("Max Memory:" + runtime.maxMemory() / mb);
+		
 		ConfUtils.loadConf(args[1]);
 		
-		local = ConfUtils.getString(ConfUtils.GENERATEMODE).equalsIgnoreCase("local");
+		local = ConfUtils.getString(ConfUtils.GENERATEMODE).equalsIgnoreCase(LOCAL);
 		inputDir = ConfUtils.getString(ConfUtils.GENERATEINPUT);
 		outputDir = ConfUtils.getString(ConfUtils.GENERATEOUTPUT);
 		featureNames = ConfUtils.getStringSet(ConfUtils.GENERATEFEATURE);
 		imageGrid = ConfUtils.getInteger(ConfUtils.GENERATEGRID);
+		featureUsed = ConfUtils.getInteger(ConfUtils.GENERATEFEATUREVALUE);
 		featureOutput = new double[imageGrid * imageGrid];
 		builders = new HashMap<String, DocumentBuilder>();
 		lireFeatures = new HashMap<String, LireFeature>();
@@ -69,11 +95,16 @@ public class Generate {
 		prepareDirectory();
 		
 		// MapReduce
-		if (ConfUtils.getString(ConfUtils.GENERATEMODE).equalsIgnoreCase("mr")) {
+		if (ConfUtils.getString(ConfUtils.GENERATEMODE).equalsIgnoreCase(MR) ||
+				ConfUtils.getString(ConfUtils.GENERATEMODE).equalsIgnoreCase(CRAWLMR)) {
 			setConf(ConfUtils.GENERATEFEATURE);
 			setConf(ConfUtils.GENERATEGRID);
 			setConf(ConfUtils.GENERATEINPUT);
 			setConf(ConfUtils.GENERATEOUTPUT);
+			setConf(ConfUtils.GENERATEMRINPUT);
+			setConf(ConfUtils.TASK);
+			setConf(ConfUtils.GENERATEFEATUREVALUE);
+			setConf(ConfUtils.GENERATECRAWLFREQ);
 			EmdGenerate generator = new EmdGenerate();
 			
 			System.exit(ToolRunner.run(conf, generator, null));
@@ -81,17 +112,20 @@ public class Generate {
 		// Local Processing
 		else {
 			for (String featureName : builders.keySet()) {
+//				long start = System.nanoTime();
 				DocumentBuilder builder = builders.get(featureName);
 				String dir = local ? outputDir + File.separator + featureName : outputDir + "/" + featureName;
 				Long id = 0L;
 				for (String each : images) {
-					featureOutput = GenerateUtil.processImage(each, local, imageGrid, builder, featureName, fs, featureOutput, lireFeatures);
+					featureOutput = GenerateUtil.processImage(each, local, imageGrid, builder, featureName, fs, featureOutput, lireFeatures, featureUsed);
 					write(dir, id + " " + FormatUtil.toTextString(featureOutput));
 					id++;	
 				}
+//				System.out.println(featureName + " : " + imageGrid + " : " + id + " images take " + (System.nanoTime() - start)/1000000000  + "s");
 			}
 		}
 	}
+
 	
 	private static void prepareDirectory() throws IOException, ConfigurationException {
 		if (local) {
@@ -112,16 +146,35 @@ public class Generate {
 		}
 		else {
 			conf = new Configuration();
-			conf.set("fs.default.name", ConfUtils.getString(ConfUtils.GENERATEHDFS));
+			conf.set(HDFS_NAME, ConfUtils.getString(ConfUtils.GENERATEHDFS));
 			fs = FileSystem.get(conf);
-			Path inPath = new Path(inputDir);
-			if (!fs.exists(inPath) || !fs.getFileStatus(inPath).isDir()) {
-				System.out.println(inputDir + " on " + ConfUtils.getString(ConfUtils.GENERATEHDFS) + " is not a directory");
+			// input is a https list
+			if (ConfUtils.getString(ConfUtils.GENERATEMRINPUT).equalsIgnoreCase(ConfUtils.GENERATEMRHTTP)) {
+				Path listPath = new Path(inputDir);
+				images = new ArrayList<String>();
+				FileUtil.getAllImagesFromListOnHDFS(listPath, fs, images);
+				// delete output dir
+				FileUtil.deleteIfExistOnHDFS(conf, outputDir);
 			}
-			FileUtil.deleteIfExistOnHDFS(conf, outputDir);
-			fs.mkdirs(new Path(outputDir));
-			images = new ArrayList<String>();
-			FileUtil.getAllImagesOnHDFS(inPath, fs, images);
+			// input images is on local file system
+			else if (ConfUtils.getString(ConfUtils.GENERATEMRINPUT).equalsIgnoreCase(ConfUtils.GENERATEMRLOCAL)) {
+				File input = new File(inputDir);
+				if (!input.exists() || !input.isDirectory()) {
+					System.out.println(inputDir + " is not a directory");
+					return;
+				}
+				images = new ArrayList<String>();
+				images = FileUtils.getAllImages(input, true);
+			}			
+			// input images is on hdfs
+			else {
+				Path inPath = new Path(inputDir);
+				if (!fs.exists(inPath) || !fs.getFileStatus(inPath).isDirectory()) {
+					System.out.println(inputDir + " on " + ConfUtils.getString(ConfUtils.GENERATEHDFS) + " is not a directory");
+				}
+				images = new ArrayList<String>();
+				FileUtil.getAllImagesOnHDFS(inPath, fs, images);
+			}
 		}
 		
 		// write out id - image path mapping metadata

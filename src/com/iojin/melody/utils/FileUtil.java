@@ -54,7 +54,7 @@ public class FileUtil {
 		}
 		BufferedWriter writer = new BufferedWriter(new FileWriter(file, true));
 		for (Long id : map.keySet()) {
-			writer.write(id + " => " + map.get(id) + "\n");
+			writer.write(id + " " + ConfUtils.ID_HASH + " " + map.get(id) + "\n");
 		}
 		writer.close();
 	}
@@ -70,7 +70,7 @@ public class FileUtil {
 		Path path = new Path(out);
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fs.create(path, true)));
 		for (Long id : map.keySet()) {
-			writer.write(id + " => " + map.get(id) + "\n");
+			writer.write(id + " " + ConfUtils.ID_HASH + " " + map.get(id) + "\n");
 		}
 		writer.close();
 	}
@@ -207,6 +207,17 @@ public class FileUtil {
 		}
 	}	
 	
+	public static boolean existOnHDFS(Configuration conf, String path) {
+		Path pt = new Path(path);
+		try {
+			FileSystem fs  = FileSystem.get(conf);
+			return fs.exists(pt);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	public static void deleteIfExistOnHDFS(Configuration conf, String path) {
 		// commented out for s3 operation 0705
 		Path pt = new Path(path);
@@ -223,13 +234,23 @@ public class FileUtil {
 	
 	public static void getAllImagesOnHDFS(Path path, FileSystem fs, List<String> list) throws IOException {
 		for (FileStatus each : fs.listStatus(path)) {
-			if (each.isDir()) {
+			if (each.isDirectory()) {
 				getAllImagesOnHDFS(each.getPath(), fs, list);
 			}
 			else {
 				list.add(each.getPath().toString());
 			}
 		}
+	}
+	
+	public static void getAllImagesFromListOnHDFS(Path path, FileSystem fs, List<String> list) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(path)));
+		String line = br.readLine();
+		while(line != null) {
+			list.add(line);
+			line = br.readLine();
+		}
+		br.close();
 	}
 	
 	// for S3

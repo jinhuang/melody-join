@@ -57,26 +57,30 @@ public class GenerateUtil {
 	private static final String SC = "sc";
 	private static final String TAMURA = "tamura";
 	
-	private static final int FEATURE_USED = 0;
+//	private static final int FEATURE_USED = 0;
 	
 	private static final String TEMP_FILE = "temp.jpeg";
 	
 	public static double[] processImage(String imagePath, boolean local, int imageGrid, DocumentBuilder builder, 
-			String featureName, FileSystem fs, double[] featureOutput, Map<String, LireFeature> lireFeatures) throws IOException, DecoderException {
+			String featureName, FileSystem fs, double[] featureOutput, Map<String, LireFeature> lireFeatures,
+			int featureUsed) throws IOException, DecoderException {
 		String imgName = getImageName(imagePath, local);
 		BufferedImage eachImage = local ? ImageIO.read(new File(imagePath)) : ImageIO.read(fs.open(new Path(imagePath)));
 
-		return processImage(eachImage, imgName, imageGrid, builder, featureName, featureOutput, lireFeatures);
+		return processImage(eachImage, imgName, imageGrid, builder, featureName, featureOutput, lireFeatures, featureUsed);
 	}
 	
 	public static double[] processImage(BufferedImage img, String imgName, int imageGrid, DocumentBuilder builder, 
-			String featureName, double[] featureOutput, Map<String, LireFeature> lireFeatures) throws IOException, DecoderException {
+			String featureName, double[] featureOutput, Map<String, LireFeature> lireFeatures, int featureUsed) throws IOException, DecoderException {
 		
 		for (int i = 0; i < imageGrid; i++) {
 			for (int j = 0; j < imageGrid; j++) {
 				String subImgName = imgName + i + "," + j;
 				Document document = builder.createDocument(getSubImageByRowAndColumn(img, i, j, imageGrid), subImgName);
-				featureOutput[i * imageGrid + j] = getFeatures(document, featureName, lireFeatures)[FEATURE_USED];
+				featureOutput[i * imageGrid + j] = getFeatures(document, featureName, lireFeatures)[featureUsed];
+//				if (i == 0 && j == 0) {
+//					System.out.println(featureName + " : " + getFeatures(document, featureName, lireFeatures).length);
+//				}
 			}
 		}
 		
