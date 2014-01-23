@@ -50,23 +50,25 @@ The Hama 0.7.0-SNAPSHOT binary is included under the directory `hama` for conven
 
 How To Run Data Generator
 ----
-The implementation includes a data generator which extract typical content-based features from images files and convert their format to fit the requirement of the join program. The configurations are also included in the `melody-conf.properties` file. It has three running modes, local file system, HDFS file system, and MapReduce (unavailable and in progress). The command for the local and HDFS modes is 
+The implementation includes a data generator which extract typical content-based features from images files and convert their format to fit the requirement of the join program. The configurations are also included in the `melody-conf.properties` file. The Generator currently supports the following **execution modes**
+
+- [x] local: where the generator extracts features and generates histograms locally on a single machine
+- [x] mr: where the generator extracts features and generates histograms on a Hadoop cluster in a parallel manner
+
+The running command for the `local` mode is
 
     java -jar <jar file path> com.iojin.melody.Generate <conf.properties>
 
-And the command for the MapReduce mode is 
+And the command for the `mr` mode is 
     
     hadoop jar <jar file path> com.iojin.melody.Generate <conf.properties>
 
-The Generator currently supports the following modes
 
-- [x] local: where the image files are read from the **local file system** and processed on the **local machine**
-- [x] hdfs: where the image files are read from **hdfs** and processed on the **local machine**
-- [x] mr: where the image files are read from **hdfs** and processed via **MapReduce jobs**
+When the `mr` mode is selected, the input **image source** can reside on
 
-The Generator will support the following mode shortly
-
-- [] crawlmr: where a file listing the image http url is read from hdfs, the image files are crawled and processed via MapReduce jobs
+- [x] local: the images will be put into a big image bundle and uploaded to the HDFS
+- [x] hdfs: the images will be put into a big image bundle and saved as temporary file on HDFS
+- [x] url: the images will be fetched on the fly from Internet according to a http(https) url list, the images are not stored on HDFS
 
 Supported Features
 ----
